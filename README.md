@@ -1,6 +1,13 @@
 # skynamo python SDK
+## Requirements
+- Python 3.6 or higher installed on your machine
+- pip installed on your machine
+
 ## Installation
+Run the following command in your terminal to install the skynamo python SDK:
+```bash
 pip install skynamo@git+https://github.com/skynamo/skynamo-python-sdk.git
+```
 
 If you are planning on sending emails you also need to install the following python packages:
 - email
