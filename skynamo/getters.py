@@ -101,6 +101,8 @@ def setTypeCorrectedCustomFieldValue(item:object,customField:dict,customProp:str
 	## check if customProp is a valid property of item
 	if customProp not in item.__dict__:
 		raise Exception(f"{customProp} is not a valid property of {type(item).__name__}. Rerun updateInstanceDataClasses.py to update this instance's data classes.")
+	if not 'value' in customField:
+		return # don't set empty values
 	typeCorrectedCustomFieldValue=customField['value']
 	if typeCorrectedCustomFieldValue=='':
 		return # don't set empty values
