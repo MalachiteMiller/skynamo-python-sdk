@@ -19,7 +19,6 @@ def getHeaders():
 		updateEnvironmentVariablesFromJsonConfig()
 		instanceName=os.environ.get('SKYNAMO_INSTANCE_NAME')
 		apiKey=os.environ.get('SKYNAMO_API_KEY')
-	print(apiKey)
 	return {'x-api-client':instanceName,'x-api-key':apiKey,'accept':'application/json'}
 
 class Write:
