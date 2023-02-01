@@ -44,7 +44,7 @@ from skynamo import getCreditRequests, getCustomers, getOrders, getProducts, get
 creditRequests=getCreditRequests()
 customers=getCustomers()
 orders=getOrders()
-qutoes=getQuotes()
+quotes=getQuotes()
 products=getProducts()
 invoices=getInvoices()
 stockLevels=getStockLevels()
@@ -53,4 +53,5 @@ from skynamoInstanceDataClasses import My_Custom_Form_f23
 formResults=getFormResults(My_Custom_Form_f23)
 ```
 ## Examples
-Look in this repo's examples folder for some examples
+Look in the tests folder for basic examples of how to use the package.
+Look in this repo's examples folder for some examples of more advanced usage.
