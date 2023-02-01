@@ -1,4 +1,4 @@
-from .SkynamoAPI import SyncDataTypesFromSkynamo
+from .synchers import SyncDataTypesFromSkynamo
 import json,os
 from .helpers import ensureFolderExists,getStringWithOnlyValidPythonVariableCharacters
 

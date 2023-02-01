@@ -1,7 +1,7 @@
 import json
 from .skynamoDataClasses.StockLevel import StockLevel
 from .skynamoDataClasses.Invoice import Invoice
-from .SkynamoAPI import SyncDataTypesFromSkynamo
+from .synchers import SyncDataTypesFromSkynamo
 
 from typing import Literal
 from .skynamoDataClasses.Transaction import Transaction
@@ -149,10 +149,13 @@ def refreshJsonFilesLocallyIfOutdated(dataTypes:list[Literal['completedforms','q
 			nrSecondsToWaitBeforeRefreshing=int(os.environ.get('SKYNAMO_CACHE_REFRESH_INTERVAL')) #type: ignore
 		except:
 			pass
+	# if any datatype is outdated then refresh all but only once
 	for dataType in dataTypes:
 		if os.path.exists(f'skynamo-cache/{dataType}.json'):
 			fileLastModifiedTime = os.path.getmtime(f'skynamo-cache/{dataType}.json')
 			if time.time()-fileLastModifiedTime>nrSecondsToWaitBeforeRefreshing:
-				SyncDataTypesFromSkynamo([dataType])
+				SyncDataTypesFromSkynamo(dataTypes)
+				break
 		else:
-			SyncDataTypesFromSkynamo([dataType])
+			SyncDataTypesFromSkynamo(dataTypes)
+			break

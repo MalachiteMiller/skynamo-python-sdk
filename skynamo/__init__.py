@@ -2,3 +2,5 @@
 from .getters import getCreditRequests, getCustomers, getOrders, getProducts, getQuotes, getFormResults,getInvoices,getStockLevels
 from .instanceDataClasses import updateInstanceDataClasses
 from .outputters import writeObjectToCsvWithObjectPropertiesAsColumnNames,sendEmailUsingGmailCredentialsWithFilesAttached
+from .skynamoDataClasses.StockLevel import getStockLevelPutUsingProductCodeAndOrderUnitId,getStockLevelPutUsingProductId,getStockLevelPutUsingProductCodeAndOrderUnitName
+from .SkynamoAPI import makeWrites
