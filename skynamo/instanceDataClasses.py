@@ -2,6 +2,7 @@ from .synchers import SyncDataTypesFromSkynamo
 import json,os
 from .helpers import ensureFolderExists,getStringWithOnlyValidPythonVariableCharacters
 
+
 def deleteExistingInstanceDataClasses():
 	## remove skynamoInstanceDataClasses subfolders and files
 	if os.path.exists('skynamoInstanceDataClasses'):
@@ -42,8 +43,8 @@ def updateInstanceDataClassFromFormDef(formDef):
 	elif formId==-1:
 		baseClass='Customer'
 		instanceClassName='Customer'
-	
-	with open(f'skynamo/skynamoDataClasses/{baseClass}.py', "r") as read_file:
+	dir_path = os.path.dirname(os.path.realpath(__file__)).replace('\\','/')
+	with open(f'{dir_path}/skynamoDataClasses/{baseClass}.py', "r") as read_file:
 		dataClass=read_file.read()
 		dataClass=dataClass.replace(f'class {baseClass}:',f'class {instanceClassName}:')
 		skippedCustomFieldTypes=['Images Field','Signature Field','Sketch Field','Divider Field','Label Field']
