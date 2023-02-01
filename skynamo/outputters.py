@@ -1,6 +1,6 @@
 import csv
 from .helpers import ensureFolderExists,updateEnvironmentVariablesFromJsonConfig
-def writeObjectToCsvWithObjectPropertiesAsColumnNames(object: object, filename: str, delimiter: str = ',') -> None:
+def writeObjectToCsvWithObjectPropertiesAsColumnNames(object: object, filename: str,columnsOrder:list[str]=[],delimiter: str = ',') -> None:
 	"""Writes an object to a CSV file with the object properties as column names.
 	Args:
 		object (object): The object to write to the CSV file.
@@ -9,8 +9,15 @@ def writeObjectToCsvWithObjectPropertiesAsColumnNames(object: object, filename: 
 	"""
 	ensureFolderExists('output')
 	filename='output/'+filename.split('.')[0]+'.csv'
+	headers=[]
+	for col in columnsOrder:
+		if col in object.__dict__:
+			headers.append(col)
+	for key in object.__dict__: 
+		if key not in headers:
+			headers.append(key)
 	with open(filename, 'w', newline='') as csvfile:
-		writer = csv.DictWriter(csvfile, fieldnames=object.__dict__.keys(), delimiter=delimiter,quotechar='"', quoting=csv.QUOTE_ALL)
+		writer = csv.DictWriter(csvfile, fieldnames=headers, delimiter=delimiter,quotechar='"', quoting=csv.QUOTE_ALL)
 		writer.writeheader()
 		writer.writerow(object.__dict__)
 
