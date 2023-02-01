@@ -1,5 +1,5 @@
 
-from .getters import getCreditRequests, getCustomers, getOrders, getProducts, getQuotes, getFormResults,getInvoices,getStockLevels
+from .getters import getCreditRequests, getCustomers, getOrders, getProducts, getQuotes, getFormResults,getInvoices,getStockLevels,getUsers
 from .instanceDataClasses import updateInstanceDataClasses
 from .outputters import writeObjectToCsvWithObjectPropertiesAsColumnNames,sendEmailUsingGmailCredentialsWithFilesAttached
 from .skynamoDataClasses.StockLevel import getStockLevelPutUsingProductCodeAndOrderUnitId,getStockLevelPutUsingProductId,getStockLevelPutUsingProductCodeAndOrderUnitName

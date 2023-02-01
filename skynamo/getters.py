@@ -1,6 +1,7 @@
 import json
 from .skynamoDataClasses.StockLevel import StockLevel
 from .skynamoDataClasses.Invoice import Invoice
+from .skynamoDataClasses.User import User
 from .synchers import SyncDataTypesFromSkynamo
 
 from typing import Literal
@@ -86,6 +87,11 @@ def getStockLevels():
 def getFormResults(FormClass):
 	refreshJsonFilesLocallyIfOutdated(['completedforms'])
 	return getListOfObjectsFromJsonFile('skynamo-cache/completedforms.json',FormClass)
+
+def getUsers():
+	refreshJsonFilesLocallyIfOutdated(['users'])
+	users:list[User]= getListOfObjectsFromJsonFile('skynamo-cache/users.json',User)
+	return users
 
 
 def setTypeCorrectedCustomFieldValue(item:object,customField:dict,customProp:str):

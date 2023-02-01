@@ -1,5 +1,6 @@
 import unittest
-from skynamo import updateInstanceDataClasses, getCreditRequests, getCustomers, getOrders, getProducts, getQuotes, getFormResults, getInvoices, getStockLevels
+from skynamo import updateInstanceDataClasses, getCreditRequests, getCustomers, getOrders, getProducts, getQuotes, getFormResults, getInvoices, getStockLevels,getUsers
+from skynamo.skynamoDataClasses.User import User
 
 ##test class that runs updateInstanceDataClasses before running all unittests
 class TestGet(unittest.TestCase):
@@ -54,3 +55,7 @@ class TestGet(unittest.TestCase):
 		from skynamoInstanceDataClasses.All_custom_field_types_f39 import All_custom_field_types_f39
 		formResults = getFormResults(All_custom_field_types_f39)
 		self.assertTrue(len(formResults) > 0)
+	
+	def test_getUsers(self):
+		users = getUsers()
+		self.assertTrue(len(users) > 0)
