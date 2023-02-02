@@ -1,25 +1,31 @@
 import csv
 from .helpers import ensureFolderExists,updateEnvironmentVariablesFromJsonConfig
-def writeObjectToCsvWithObjectPropertiesAsColumnNames(object: object, filename: str,columnsOrder:list[str]=[],delimiter: str = ',') -> None:
-	"""Writes an object to a CSV file with the object properties as column names.
+def writeListOfObjectsToCsvWithObjectPropertiesAsColumnNames(listOfObjects:list[object], filename: str,columnsOrder:list[str]=[],delimiter: str = ',') -> None:
+	"""Writes a list of objects to a CSV file with the object properties as column names.
 	Args:
-		object (object): The object to write to the CSV file.
-		filename (str): The name of the CSV file to write to.
-		delimiter (str): The delimiter to use when writing to the CSV file.
+		listOfObjects (list[object]): The list of objects to write to the CSV file.
+		filename (str): The filename of the CSV file.
+		columnsOrder (list[str]): The order of the columns in the CSV file.
+		delimiter (str): The delimiter to use for the CSV file.
 	"""
-	ensureFolderExists('output')
-	filename='output/'+filename.split('.')[0]+'.csv'
+	##ensure filename is in output folder
+	if 'output/' != filename[:7]:
+		filename = 'output/' + filename
+	##ensure filename ends with .csv
+	if '.csv' != filename[-4:]:
+		filename = filename + '.csv'
 	headers=[]
 	for col in columnsOrder:
-		if col in object.__dict__:
-			headers.append(col)
-	for key in object.__dict__: 
+		headers.append(col)
+	for key in listOfObjects[0].__dict__.keys():
 		if key not in headers:
 			headers.append(key)
+	ensureFolderExists('output')
 	with open(filename, 'w', newline='') as csvfile:
 		writer = csv.DictWriter(csvfile, fieldnames=headers, delimiter=delimiter,quotechar='"', quoting=csv.QUOTE_ALL)
 		writer.writeheader()
-		writer.writerow(object.__dict__)
+		for obj in listOfObjects:
+			writer.writerow(obj.__dict__)
 
 def sendEmailUsingGmailCredentialsWithFilesAttached(subject: str, body: str, recipients: list[str], files: list) -> None:
 	"""Sends an email using Gmail credentials with files attached.
