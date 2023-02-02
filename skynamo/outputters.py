@@ -72,5 +72,5 @@ def sendEmailUsingGmailCredentialsWithFilesAttached(subject: str, body: str, rec
 	server.starttls()
 	server.login(sender, senderPassword)
 	text = msg.as_string()
-	server.sendmail(sender, msg['To'], text)
+	server.sendmail(sender, recipients, text)
 	server.quit()

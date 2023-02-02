@@ -31,5 +31,5 @@ class OutputTest(unittest.TestCase):
 		writeListOfObjectsToCsvWithObjectPropertiesAsColumnNames([testObject1,testObject2], 'testWithSpecificColumnOrder.csv', ['float','int'])
 
 	def test_sendEmailUsingGmailCredentialsWithFilesAttached(self):
-		sendEmailUsingGmailCredentialsWithFilesAttached('test', 'test', ['daniel@skynamo.com','servaas@skynamo.com'], ['test.csv'])
+		sendEmailUsingGmailCredentialsWithFilesAttached('test', 'test', ['daniel@skynamo.com','danielvn@zohomail.com'], ['test.csv'])
 		
