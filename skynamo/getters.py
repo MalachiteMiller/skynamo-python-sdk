@@ -28,12 +28,12 @@ def populateCustomPropsFromFormResults(transaction:Transaction,formIds:list[int]
 			customProp=f'f{formId}_c{customFieldId}_{customFieldName}'
 			setTypeCorrectedCustomFieldValue(transaction,customField,customProp)
 
-def getTransactions(transactionClass):
+def getTransactions(transactionClass,forceRefresh:bool):
 	refreshJsonFilesLocallyIfOutdated([f'{transactionClass.__name__.lower()}s','completedforms','interactions'])#type:ignore
 	interactionsJson={}
 	with open(f'skynamo-cache/interactions.json', "r") as read_file:
 		interactionsJson=ujson.load(read_file)
-	refreshJsonFilesLocallyIfOutdated(['orders','completedforms','interactions'])
+	refreshJsonFilesLocallyIfOutdated(['orders','completedforms','interactions'],forceRefresh)
 	completedForms={}
 	with open(f'skynamo-cache/completedforms.json', "r") as read_file:
 		completedForms=ujson.load(read_file)
@@ -43,50 +43,50 @@ def getTransactions(transactionClass):
 		populateCustomPropsFromFormResults(transaction,formIds,completedForms)#type:ignore
 	return transactions
 
-def getOrders():
+def getOrders(forceRefresh=False):
 	from skynamoInstanceDataClasses.Order import Order
-	orders:list[Order]=getTransactions(Order)
+	orders:list[Order]=getTransactions(Order,forceRefresh)
 	return orders
 
-def getCreditRequests():
+def getCreditRequests(forceRefresh=False):
 	from skynamoInstanceDataClasses.CreditRequest import CreditRequest
-	creditRequests:list[CreditRequest]=getTransactions(CreditRequest)
+	creditRequests:list[CreditRequest]=getTransactions(CreditRequest,forceRefresh)
 	return creditRequests
 
-def getQuotes():
+def getQuotes(forceRefresh=False):
 	from skynamoInstanceDataClasses.Quote import Quote
-	quotes:list[Quote]=getTransactions(Quote)
+	quotes:list[Quote]=getTransactions(Quote,forceRefresh)
 	return quotes
 
-def getProducts():
+def getProducts(forceRefresh=False):
 	from skynamoInstanceDataClasses.Product import Product
-	refreshJsonFilesLocallyIfOutdated(['products'])
+	refreshJsonFilesLocallyIfOutdated(['products'],forceRefresh)
 	products:list[Product]= getListOfObjectsFromJsonFile('skynamo-cache/products.json',Product)
 	return products
 
-def getCustomers():
+def getCustomers(forceRefresh=False):
 	from skynamoInstanceDataClasses.Customer import Customer
-	refreshJsonFilesLocallyIfOutdated(['customers'])
+	refreshJsonFilesLocallyIfOutdated(['customers'],forceRefresh)
 	customers:list[Customer]= getListOfObjectsFromJsonFile('skynamo-cache/customers.json',Customer)
 	return customers
 
 
-def getInvoices():
-	refreshJsonFilesLocallyIfOutdated(['invoices'])
+def getInvoices(forceRefresh=False):
+	refreshJsonFilesLocallyIfOutdated(['invoices'],forceRefresh)
 	invoices:list[Invoice]=getListOfObjectsFromJsonFile('skynamo-cache/invoices.json',Invoice)
 	return invoices
 
-def getStockLevels():
-	refreshJsonFilesLocallyIfOutdated(['stocklevels'])
+def getStockLevels(forceRefresh=False):
+	refreshJsonFilesLocallyIfOutdated(['stocklevels'],forceRefresh)
 	stockLevels= getListOfObjectsFromJsonFile('skynamo-cache/stocklevels.json',StockLevel)
 	return stockLevels
 
-def getFormResults(FormClass):
-	refreshJsonFilesLocallyIfOutdated(['completedforms'])
+def getFormResults(FormClass,forceRefresh=False):
+	refreshJsonFilesLocallyIfOutdated(['completedforms'],forceRefresh)
 	return getListOfObjectsFromJsonFile('skynamo-cache/completedforms.json',FormClass)
 
-def getUsers():
-	refreshJsonFilesLocallyIfOutdated(['users'])
+def getUsers(forceRefresh=False):
+	refreshJsonFilesLocallyIfOutdated(['users'],forceRefresh)
 	users:list[User]= getListOfObjectsFromJsonFile('skynamo-cache/users.json',User)
 	return users
 
@@ -145,7 +145,7 @@ def getListOfObjectsFromJsonFile(jsonFile:str,DataClass):
 		listOfObjects.append(obj)
 	return listOfObjects
 
-def refreshJsonFilesLocallyIfOutdated(dataTypes:list[Literal['completedforms','quotes','orders','creditrequests','users','stocklevels','customers','products','invoices','formdefinitions','interactions']]):
+def refreshJsonFilesLocallyIfOutdated(dataTypes:list[Literal['completedforms','quotes','orders','creditrequests','users','stocklevels','customers','products','invoices','formdefinitions','interactions']],forceRefresh:bool=False):
 	import os
 	import time
 	nrSecondsToWaitBeforeRefreshing=300
@@ -158,7 +158,7 @@ def refreshJsonFilesLocallyIfOutdated(dataTypes:list[Literal['completedforms','q
 	for dataType in dataTypes:
 		if os.path.exists(f'skynamo-cache/{dataType}.json'):
 			fileLastModifiedTime = os.path.getmtime(f'skynamo-cache/{dataType}.json')
-			if time.time()-fileLastModifiedTime>nrSecondsToWaitBeforeRefreshing:
+			if forceRefresh or time.time()-fileLastModifiedTime>nrSecondsToWaitBeforeRefreshing:
 				SyncDataTypesFromSkynamo([dataType])
 		else:
 			SyncDataTypesFromSkynamo([dataType])

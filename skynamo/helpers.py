@@ -1,6 +1,7 @@
 import os,json
 from datetime import datetime
 
+
 def ensureFolderExists(folderPath):
 	if not os.path.exists(folderPath):
 		os.makedirs(folderPath)

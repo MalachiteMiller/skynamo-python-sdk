@@ -2,14 +2,29 @@ from typing import Union,Literal
 from datetime import datetime
 from skynamo.skynamoDataClasses.Address import Address
 from skynamo.helpers import getDateTimeObjectFromSkynamoDateTimeStr
+from skynamo.write.writeHelpers import getWriteObjectToPatchObject
+
+class Location:
+	def __init__(self,json:dict={}):
+		if 'latitude' in json:
+			self.latitude:float=json['latitude']
+		if 'longitude' in json:
+			self.longitude:float=json['longitude']
+		if 'accuracy' in json:
+			self.accuracy:float=json['accuracy']
+		if 'is_approximate' in json:
+			self.is_approximate:bool=json['is_approximate']
 
 class Customer:
+	def getWriteObjectToPatchCustomer(self,fieldsToPatch:list[str]):
+		return getWriteObjectToPatchObject(self,fieldsToPatch)
+
 	def __init__(self,json:dict):
 		self.id:int=json['id']
 		self.code:str=json['code']
 		self.name:str=json['name']
 		self.active:bool=json['active']
-		self.location:dict=json['location']
+		self.location:Location=Location(json['location'])
 		self.price_list_id:Union[int,None]=None
 		if 'price_list_id' in json:
 			self.price_list_id=json['price_list_id']

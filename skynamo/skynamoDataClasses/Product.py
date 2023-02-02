@@ -1,7 +1,9 @@
 from typing import Union,Literal
 from datetime import datetime
 from skynamo.helpers import getDateTimeObjectFromSkynamoDateTimeStr
+from skynamo.write.writeHelpers import getWriteObjectToPatchObject
 from skynamo.skynamoDataClasses.Address import Address
+from skynamo.SkynamoAPI import Write
 
 class OrderUnit:
 	def __init__(self,json:dict={}):
@@ -11,6 +13,9 @@ class OrderUnit:
 		self.active:bool=json['active']
 
 class Product:
+	def getWriteObjectToPatchProduct(self,fieldsToPatch:list[str]):
+		return getWriteObjectToPatchObject(self,fieldsToPatch)
+
 	def __init__(self,json:dict={}):
 		self.id:str=json['id']
 		self.row_version:int=json['row_version']

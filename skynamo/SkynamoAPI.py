@@ -2,7 +2,7 @@ import requests
 import json,math
 import threading
 import os
-from typing import Literal,Union
+from typing import Literal,Union,Any
 from .helpers import updateEnvironmentVariablesFromJsonConfig
 
 def getApiBase():
@@ -22,7 +22,7 @@ def getHeaders():
 	return {'x-api-client':instanceName,'x-api-key':apiKey,'accept':'application/json'}
 
 class Write:
-	def __init__(self,dataType:str,httpMethod:Literal['post','patch','put'],item:dict[str,Union[str,int,float,bool,list]]):
+	def __init__(self,dataType:str,httpMethod:Literal['post','patch','put'],item:dict[str,Any]):
 		self.dataType=dataType
 		self.item=item
 		self.httpMethod=httpMethod
@@ -39,7 +39,14 @@ def makeWriteRequest(writeBatch:list[Write],errors:list[WriteError]):
 	for write in writeBatch:
 		writeItems.append(write.item)
 	#results=eval(f'requests.{writeBatch[0].httpMethod}(getApiBase()+"{writeBatch[0].dataType}",headers=getHeaders(),json=writeItems).json()')
-	results=requests.post(getApiBase()+writeBatch[0].dataType,headers=getHeaders(),json=writeItems).json()
+	results={}
+	if writeBatch[0].httpMethod=='post':
+		results=requests.post(getApiBase()+writeBatch[0].dataType,headers=getHeaders(),json=writeItems).json()
+	elif writeBatch[0].httpMethod=='patch':
+		results=requests.patch(getApiBase()+writeBatch[0].dataType,headers=getHeaders(),json=writeItems).json()
+	elif writeBatch[0].httpMethod=='put':
+		results=requests.put(getApiBase()+writeBatch[0].dataType,headers=getHeaders(),json=writeItems).json()
+	print(results)
 	if 'errors' in results:
 		for error in results['errors']:
 			errors.append(WriteError(writeBatch[0].dataType,writeBatch[0].httpMethod,writeItems[error['index']],error['detail'])) #type:ignore

@@ -12,3 +12,6 @@ class Address:
 		for i in range(0,4):
 			if i<len(ar):
 				self.__dict__[indexToKey[i]]=ar[i]
+
+	def getJsonReadyValue(self):
+		return f'{self.street}\n{self.city}\n{self.state}\n{self.zip}'
