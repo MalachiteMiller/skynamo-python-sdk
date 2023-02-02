@@ -1,4 +1,13 @@
 # skynamo python SDK
+
+## Overview
+This package is a python SDK for skynamo public API. It allows you to pull data from your skynamo instance and update data in your skynamo instance. Some of the features include:
+- Extending your instance's data classes with their respective custom fields. This allows you to use your IDE's autocomplete feature to easily access your custom fields.
+- Pulling data from your skynamo instance and caching it locally to speed up subsequent calls and prevent hitting the skynamo API rate limit.
+- Updating data in your skynamo instance using write batches to speed up the process and to prevent hitting the skynamo API rate limit.
+- Saving raw or processed (e.g with filters or by combining different data types) skynamo data in csv files, which can be usefull for reporting.
+- Sending emails using your gmail account.
+
 ## Requirements
 - Python 3.6 or higher installed on your machine
 - pip installed on your machine
@@ -12,6 +21,7 @@ pip install skynamo@git+https://github.com/skynamo/skynamo-python-sdk.git -I
 If you are planning on sending emails you also need to install the following python packages:
 - email
 - smtplib
+
 ## Setup
 Add skynamo-config.json in the root directory of your repository with the following information:
 ```json
@@ -52,6 +62,17 @@ stockLevels=getStockLevels()
 from skynamoInstanceDataClasses import My_Custom_Form_f23
 formResults=getFormResults(My_Custom_Form_f23)
 ```
+
+## Updating data in your skynamo instance
+To speed up any puts, posts or patches to your skynamo instance, this package creates write batches which it runs in parallel. To make any puts, posts or patches you need to build up a list of write objects and give the list to the 'makeWrites' method as shown below:
+```python
+from skynamo import makeWrites,getStockLevelPutUsingProductCodeAndOrderUnitName
+
+stockLevelUpdate1 = getStockLevelPutUsingProductCodeAndOrderUnitName("a", "Unit", 1)
+stockLevelUpdate2 = getStockLevelPutUsingProductCodeAndOrderUnitName("b", "Unit", 1)
+listOfErrors=makeWrites([stockLevelUpdate1,stockLevelUpdate2]) #listOfErrors will be empty if all writes were successful
+```
+
 ## Examples
 Look in the tests folder for basic examples of how to use the package.
-Look in this repo's examples folder for some examples of more advanced usage.
+Look in this examples folder for some examples of more advanced usage.
