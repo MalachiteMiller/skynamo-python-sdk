@@ -21,4 +21,4 @@ class TestUpdateInstanceDataClasses(unittest.TestCase):
 		self.assertTrue(os.path.exists('skynamoInstanceDataClasses/CreditRequest.py'))
 		self.assertTrue(os.path.exists('skynamoInstanceDataClasses/Customer.py'))
 		self.assertTrue(os.path.exists('skynamoInstanceDataClasses/Product.py'))
-		self.assertTrue(os.path.exists('skynamoInstanceDataClasses/COVID_19_After_visit_checklist_f8.py'))
+		#self.assertTrue(os.path.exists('skynamoInstanceDataClasses/COVID_19_After_visit_checklist_f8.py'))

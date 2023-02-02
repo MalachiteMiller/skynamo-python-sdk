@@ -1,4 +1,4 @@
-import json
+import ujson
 from .skynamoDataClasses.StockLevel import StockLevel
 from .skynamoDataClasses.Invoice import Invoice
 from .skynamoDataClasses.User import User
@@ -9,10 +9,7 @@ from .skynamoDataClasses.Transaction import Transaction
 from .skynamoDataClasses.Address import Address
 from .helpers import getDateTimeObjectFromSkynamoDateTimeStr,getStringWithOnlyValidPythonVariableCharacters
 
-def populateUserIdAndNameFromInteractionAndReturnFormIds(transaction:Transaction):
-	interactionsJson={}
-	with open(f'skynamo-cache/interactions.json', "r") as read_file:
-		interactionsJson=json.load(read_file)
+def populateUserIdAndNameFromInteractionAndReturnFormIds(transaction:Transaction,interactionsJson:dict):
 	interaction=interactionsJson['items'][str(transaction.interaction_id)]
 	transaction.user_id=interaction['user_id']
 	transaction.user_name=interaction['user_name']
@@ -21,12 +18,9 @@ def populateUserIdAndNameFromInteractionAndReturnFormIds(transaction:Transaction
 		formIds=interaction['completed_form_ids']
 	return formIds
 
-def populateCustomPropsFromFormResults(transaction:Transaction,formIds:list[int]):
-	formResultsJson={}
-	with open(f'skynamo-cache/completedforms.json', "r") as read_file:
-		formResultsJson=json.load(read_file)
+def populateCustomPropsFromFormResults(transaction:Transaction,formIds:list[int],completedForms:dict):
 	for id in formIds:
-		formRes=formResultsJson['items'][str(id)]
+		formRes=completedForms['items'][str(id)]
 		for customField in formRes['custom_fields']:
 			customFieldId=customField['id']
 			customFieldName=getStringWithOnlyValidPythonVariableCharacters(customField['name'])
@@ -34,31 +28,34 @@ def populateCustomPropsFromFormResults(transaction:Transaction,formIds:list[int]
 			customProp=f'f{formId}_c{customFieldId}_{customFieldName}'
 			setTypeCorrectedCustomFieldValue(transaction,customField,customProp)
 
+def getTransactions(transactionClass):
+	refreshJsonFilesLocallyIfOutdated([f'{transactionClass.__name__.lower()}s','completedforms','interactions'])#type:ignore
+	interactionsJson={}
+	with open(f'skynamo-cache/interactions.json', "r") as read_file:
+		interactionsJson=ujson.load(read_file)
+	refreshJsonFilesLocallyIfOutdated(['orders','completedforms','interactions'])
+	completedForms={}
+	with open(f'skynamo-cache/completedforms.json', "r") as read_file:
+		completedForms=ujson.load(read_file)
+	transactions=getListOfObjectsFromJsonFile(f'skynamo-cache/{transactionClass.__name__.lower()}s.json',transactionClass)
+	for i,transaction in enumerate(transactions):
+		formIds=populateUserIdAndNameFromInteractionAndReturnFormIds(transaction,interactionsJson)#type:ignore
+		populateCustomPropsFromFormResults(transaction,formIds,completedForms)#type:ignore
+	return transactions
+
 def getOrders():
 	from skynamoInstanceDataClasses.Order import Order
-	refreshJsonFilesLocallyIfOutdated(['orders','completedforms','interactions'])
-	orders:list[Order]=getListOfObjectsFromJsonFile('skynamo-cache/orders.json',Order)
-	for order in orders:
-		formIds=populateUserIdAndNameFromInteractionAndReturnFormIds(order)#type:ignore
-		populateCustomPropsFromFormResults(order,formIds)#type:ignore
+	orders:list[Order]=getTransactions(Order)
 	return orders
 
 def getCreditRequests():
 	from skynamoInstanceDataClasses.CreditRequest import CreditRequest
-	refreshJsonFilesLocallyIfOutdated(['creditrequests','completedforms','interactions'])
-	creditRequests:list[CreditRequest] = getListOfObjectsFromJsonFile('skynamo-cache/creditrequests.json',CreditRequest)
-	for creditRequest in creditRequests:
-		formIds=populateUserIdAndNameFromInteractionAndReturnFormIds(creditRequest)#type:ignore
-		populateCustomPropsFromFormResults(creditRequest,formIds)#type:ignore
+	creditRequests:list[CreditRequest]=getTransactions(CreditRequest)
 	return creditRequests
 
 def getQuotes():
 	from skynamoInstanceDataClasses.Quote import Quote
-	refreshJsonFilesLocallyIfOutdated(['quotes','completedforms','interactions'])
-	quotes:list[Quote]= getListOfObjectsFromJsonFile('skynamo-cache/quotes.json',Quote)
-	for quote in quotes:
-		formIds=populateUserIdAndNameFromInteractionAndReturnFormIds(quote)#type:ignore
-		populateCustomPropsFromFormResults(quote,formIds)#type:ignore
+	quotes:list[Quote]=getTransactions(Quote)
 	return quotes
 
 def getProducts():
@@ -131,7 +128,7 @@ def getListOfObjectsFromJsonFile(jsonFile:str,DataClass):
 		formIdToFilterOn=int(DataClass.__name__.split('_f')[-1])
 	jsonDict={}
 	with open(jsonFile, "r") as read_file:
-		jsonDict=json.load(read_file)
+		jsonDict=ujson.load(read_file)
 	listOfObjects=[]
 	for itemId in jsonDict['items']:
 		item=jsonDict['items'][itemId]
@@ -157,13 +154,11 @@ def refreshJsonFilesLocallyIfOutdated(dataTypes:list[Literal['completedforms','q
 			nrSecondsToWaitBeforeRefreshing=int(os.environ.get('SKYNAMO_CACHE_REFRESH_INTERVAL')) #type: ignore
 		except:
 			pass
-	# if any datatype is outdated then refresh all but only once
+
 	for dataType in dataTypes:
 		if os.path.exists(f'skynamo-cache/{dataType}.json'):
 			fileLastModifiedTime = os.path.getmtime(f'skynamo-cache/{dataType}.json')
 			if time.time()-fileLastModifiedTime>nrSecondsToWaitBeforeRefreshing:
-				SyncDataTypesFromSkynamo(dataTypes)
-				break
+				SyncDataTypesFromSkynamo([dataType])
 		else:
-			SyncDataTypesFromSkynamo(dataTypes)
-			break
+			SyncDataTypesFromSkynamo([dataType])

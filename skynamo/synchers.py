@@ -2,7 +2,7 @@ from .helpers import ensureFolderExists
 import requests
 from typing import Union,Literal
 from .SkynamoAPI import getApiBase,getHeaders
-import json,math,threading
+import ujson,math,threading
 
 def AddPageResultToExistingItemsAndReturnTotalItems(dataType:str,existingItems:dict,pageNr:int,pageSize:int,idField:str,filters:str,flags:list[str]=[]):
 	print(f'Pagenr: {pageNr}')
@@ -45,7 +45,7 @@ def SyncDataTypeFromSkynamoToLocalJsonFiles(dataType,fullSync=False,idField='id'
 	if not(fullSync):
 		try:
 			with open(f'skynamo-cache/{dataType}.json', "r") as read_file:
-				existingData=json.load(read_file)
+				existingData=ujson.load(read_file)
 		except Exception as e:
 			pass
 	pageNr=1
@@ -80,7 +80,7 @@ def SyncDataTypeFromSkynamoToLocalJsonFiles(dataType,fullSync=False,idField='id'
 	existingData['lastPageNr']=pageNr-1
 	with open(f'skynamo-cache/{dataType}.json', "w") as write_file:
 		print(f'updating cache for {dataType}')
-		json.dump(existingData, write_file)
+		ujson.dump(existingData, write_file)
 	if exceptionThatOccured!=None:
 		raise exceptionThatOccured
 

@@ -1,6 +1,7 @@
 import unittest
 from skynamo import updateInstanceDataClasses, getCreditRequests, getCustomers, getOrders, getProducts, getQuotes, getFormResults, getInvoices, getStockLevels,getUsers
 from skynamo.skynamoDataClasses.User import User
+import time
 
 ##test class that runs updateInstanceDataClasses before running all unittests
 class TestGet(unittest.TestCase):
@@ -9,7 +10,9 @@ class TestGet(unittest.TestCase):
 		updateInstanceDataClasses()
 
 	def test_getCreditRequests(self):
+		print(time.time())
 		creditRequests = getCreditRequests()
+		print(time.time())
 		#ensure each credit request has user id not 0 and user name not ""
 		for creditRequest in creditRequests:
 			self.assertTrue(creditRequest.user_id != 0)

@@ -6,4 +6,5 @@ class User:
 		self.email:str=json['email']
 		self.is_verified:bool=json['is_verified']
 		self.active:bool=json['active']
-		self.access:str=json['access']
+		if 'access' in json:
+			self.access:str=json['access']

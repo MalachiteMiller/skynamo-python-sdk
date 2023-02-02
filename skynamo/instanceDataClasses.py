@@ -22,6 +22,22 @@ def updateInstanceDataClasses():
 		formDef=formsJson['items'][formDefId]
 		if formDef['active']==True:
 			updateInstanceDataClassFromFormDef(formDef)
+	updateInstanceDataClassesWithNoFormDefinitions()
+
+def updateInstanceDataClassesWithNoFormDefinitions():
+	for className in ['Customer','Product','Quote','Order','CreditRequest']:
+		## if the instance data class already exists, don't overwrite it
+		if os.path.exists(f'skynamoInstanceDataClasses/{className}.py'):
+			continue
+		dir_path = os.path.dirname(os.path.realpath(__file__)).replace('\\','/')
+		baseClass=className
+		if className in ['Order','CreditRequest','Quote']:
+			baseClass='Transaction'
+		with open(f'{dir_path}/skynamoDataClasses/{baseClass}.py', "r") as read_file:
+			dataClass=read_file.read()
+			dataClass=dataClass.replace(f'class {baseClass}:',f'class {className}:')
+			with open(f'skynamoInstanceDataClasses/{className}.py', "w") as write_file:
+				write_file.write(dataClass)
 
 def updateInstanceDataClassFromFormDef(formDef):
 	formId=formDef['id']
