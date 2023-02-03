@@ -1,18 +1,31 @@
 from typing import Literal,Union
 from datetime import datetime
 from skynamo.helpers import getDateTimeObjectFromSkynamoDateTimeStr
+from skynamo.write.writeHelpers import getWriteObjectToPatchObject
 
 class InvoiceItem:
-	def __init__(self,json:dict={}):
-		self.product_id:int=json['product_id']
-		self.product_code:str=json['product_code']
-		self.quantity:float=json['quantity']
-		self.totalLineValue:float=json['value']
-		self.tax_amount:Union[None,float]=None
-		if 'tax_amount' in json:
-			self.tax_amount=json['tax_amount']
+	def __init__(self,product_code:str,quantity:float,totalLineValue:float,tax_amount:Union[None,float]=None,product_id:Union[None,int]=None):
+		self.product_id=product_id
+		self.product_code:str=product_code
+		self.quantity:float=quantity
+		self.totalLineValue:float=totalLineValue
+		self.tax_amount:Union[None,float]=tax_amount
+
+	def getJsonReadyValue(self):
+		res={
+			'product_id':self.product_id,
+			'product_code':self.product_code,
+			'quantity':self.quantity,
+			'value':self.totalLineValue
+		}
+		if self.tax_amount != None:
+			res['tax_amount']=self.tax_amount
+		return res
 
 class Invoice:
+	def getWriteObjectToUpdateInvoice(self,fieldsToUpdate:list[str]):
+		return getWriteObjectToPatchObject(self,fieldsToUpdate)
+
 	def __init__(self,json:dict={}):
 		self.id:int=json['id']
 		self.date:datetime=getDateTimeObjectFromSkynamoDateTimeStr(json['date'])
@@ -41,4 +54,7 @@ class Invoice:
 			self.outstanding_balance=json['outstanding_balance']
 		self.items:list[InvoiceItem]=[]
 		for item in json['items']:
-			self.items.append(InvoiceItem(item))
+			inputToInvoiceItem={'product_id':item['product_id'],'product_code':item['product_code'],'quantity':item['quantity'],'totalLineValue':item['value']}
+			if 'tax_amount' in item:
+				inputToInvoiceItem['tax_amount']=item['tax_amount']
+			self.items.append(InvoiceItem(**inputToInvoiceItem))

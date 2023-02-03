@@ -22,3 +22,5 @@ def getCreateCustomerWriteObject(code:str,name:str,active:bool=True,latitude=0,l
 def getCreateProductWriteObject(code:str,name:str,unit_name:str='Unit',active:bool=True):
 	body={'code': code, 'name': name,'active':active,'order_units':[{'name':unit_name,'multiplier':1}]}
 	return Write("products", "post", body)
+
+

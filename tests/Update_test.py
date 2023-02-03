@@ -1,5 +1,5 @@
 import unittest
-from skynamo import updateInstanceDataClasses, getProducts,makeWrites,getCustomers
+from skynamo import updateInstanceDataClasses, getProducts,makeWrites,getCustomers,getInvoices
 from skynamo.skynamoDataClasses.Address import Address
 
 ##test class that runs updateInstanceDataClasses before running all unittests
@@ -76,11 +76,15 @@ class TestUpdate(unittest.TestCase):
 		writes=[]
 		for product in products:
 			if product.code in ['a','b','c']:
-				if product.name.startswith("Test "):
-					product.c101_Categories=None
-					writes.append(product.getWriteObjectToPatchProduct(["name"]))
+				product.c101_Categories='Option 2'	#type:ignore
+				writes.append(product.getWriteObjectToPatchProduct(["c101_Categories"]))
 		errors=makeWrites(writes)
 		self.assertTrue(len(errors)==0)
+		#assert that all product categories updated correctly to Option 2
+		products = getProducts(forceRefresh=True)
+		for product in products:
+			if product.code in ['a','b','c']:
+				self.assertTrue(product.c101_Categories=="Option 2")
 
 	def test_updateCustomFieldsInCustomers(self):
 		customers=getCustomers()
@@ -108,8 +112,39 @@ class TestUpdate(unittest.TestCase):
 		writes=[]
 		for customer in customers:
 			if customer.code in ['a','b','c']:
-				if customer.name.startswith("Test "):
-					customer.c4_Address=None
-					writes.append(customer.getWriteObjectToPatchCustomer(["name"]))
+				if customer.c4_Address is not None:
+					customer.c4_Address.street=''
+					customer.c4_Address.zip=''
+				writes.append(customer.getWriteObjectToPatchCustomer(["c4_Address"]))
 		errors=makeWrites(writes)
 		self.assertTrue(len(errors)==0)
+
+class TestUpdateInvoice(unittest.TestCase):
+	def test_updateInvoiceStatus(self):
+		invoices=getInvoices()
+		writes=[]
+		for invoice in invoices:
+			if invoice.reference=='asdf':
+				invoice.status="Paid"
+				writes.append(invoice.getWriteObjectToUpdateInvoice(["status"]))
+		errors=makeWrites(writes)
+		self.assertTrue(len(errors)==0)
+		##assert that invoice status updated correctly
+		invoices = getInvoices(forceRefresh=True)
+		for invoice in invoices:
+			if invoice.reference=='asdf':
+				self.assertTrue(invoice.status=="Paid")
+		#reset invoice status to Draft
+		writes=[]
+		for invoice in invoices:
+			if invoice.reference=='asdf':
+				invoice.status='Draft'
+				writes.append(invoice.getWriteObjectToUpdateInvoice(["status"]))
+		errors=makeWrites(writes)
+		self.assertTrue(len(errors)==0)
+		## assert that invoice status reverted to Draft
+		invoices = getInvoices(forceRefresh=True)
+		for invoice in invoices:
+			if invoice.reference=='asdf':
+				self.assertEqual(invoice.status,'Draft')
+		
