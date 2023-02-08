@@ -32,12 +32,20 @@ def getStringWithOnlyValidPythonVariableCharacters(string:str):
 			newString+='_'
 	if newString[0] in '0123456789':
 		newString='_'+newString
+	##remove non-utf8 characters
+	newString=newString.encode('ascii', 'ignore').decode('ascii')
 	return newString
 
 def getPathRelativeToSkynamoDataFolder(relativeFilePath:str):
 	if relativeFilePath[0]=='/':
 		relativeFilePath=relativeFilePath[1:]
 	return f'skynamo_data/{relativeFilePath}'
+
+def clearInstanceSpecificFolder(relativeFolderPath:str):
+	finalFolderPath=getPathRelativeToSkynamoDataFolder(relativeFolderPath)
+	if os.path.exists(finalFolderPath):
+		for file in os.listdir(finalFolderPath):
+			os.remove(os.path.join(finalFolderPath, file))
 
 def writeToInstanceSpecificFile(relativeFilePath:str,stringContent:str):
 	finalFilePath=getPathRelativeToSkynamoDataFolder(relativeFilePath)

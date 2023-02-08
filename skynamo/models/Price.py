@@ -12,4 +12,5 @@ class Price:
 		self.order_unit_id:int=json['order_unit_id']
 		self.order_unit_name:str=json['order_unit_name']
 		self.last_modified_time:datetime=getDateTimeObjectFromSkynamoDateTimeStr(json['last_modified_time'])
-		self.tax_rate_id:int=json['tax_rate_id']
+		if 'tax_rate_id' in json:
+			self.tax_rate_id:int=json['tax_rate_id']

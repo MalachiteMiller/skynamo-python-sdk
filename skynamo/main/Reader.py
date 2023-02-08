@@ -8,12 +8,12 @@ from skynamo.models.User import User
 from skynamo.models.Warehouse import Warehouse
 from skynamo.models.Price import Price
 from skynamo.models.StockLevel import StockLevel
-from skynamo.reader.jsonToObjects import getListOfObjectsFromJsonFile
+from skynamo.reader.jsonToObjects import getListOfObjectsFromJsonFile,populateCustomPropsFromFormResults,populateUserIdAndNameFromInteractionAndReturnFormIds
 from skynamo.reader.sync import refreshJsonFilesLocallyIfOutdated,getSynchedDataTypeFileLocation
 import ujson
 ##|customImports|##
 
-def __getTransactions(transactionClass,forceRefresh=False):
+def _getTransactions(transactionClass,forceRefresh=False):
 	refreshJsonFilesLocallyIfOutdated([f'{transactionClass.__name__.lower()}s','completedforms','interactions'])#type:ignore
 	interactionsJson={}
 	with open(getSynchedDataTypeFileLocation('interactions'), "r") as read_file:
@@ -24,23 +24,23 @@ def __getTransactions(transactionClass,forceRefresh=False):
 		completedForms=ujson.load(read_file)
 	transactions=getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation(f'{transactionClass.__name__.lower()}s'),transactionClass)
 	for i,transaction in enumerate(transactions):
-		formIds=populateUserIdAndNameFromInteractionAndReturnFormIds(transaction,interactionsJson)#type:ignore
-		populateCustomPropsFromFormResults(transaction,formIds,completedForms)#type:ignore
+		formIds=populateUserIdAndNameFromInteractionAndReturnFormIds(transaction,interactionsJson)
+		populateCustomPropsFromFormResults(transaction,formIds,completedForms)
 	return transactions
 
 class Reader:
 	def __init__(self):
 		pass
 	def getOrders(self,forceRefresh=False):
-		orders:list[Order]=__getTransactions(Order,forceRefresh)
+		orders:list[Order]=_getTransactions(Order,forceRefresh)
 		return orders
 
 	def getCreditRequests(self,forceRefresh=False):
-		creditRequests:list[CreditRequest]=__getTransactions(CreditRequest,forceRefresh)
+		creditRequests:list[CreditRequest]=_getTransactions(CreditRequest,forceRefresh)
 		return creditRequests
 
 	def getQuotes(self,forceRefresh=False):
-		quotes:list[Quote]=__getTransactions(Quote,forceRefresh)
+		quotes:list[Quote]=_getTransactions(Quote,forceRefresh)
 		return quotes
 
 	def getProducts(self,forceRefresh=False):

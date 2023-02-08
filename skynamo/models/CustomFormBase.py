@@ -1,5 +1,5 @@
 from datetime import datetime
-from skynamo.helpers import getDateTimeObjectFromSkynamoDateTimeStr
+from skynamo.shared.helpers import getDateTimeObjectFromSkynamoDateTimeStr
 
 class CustomFormBase:
 	def __init__(self,json:dict):

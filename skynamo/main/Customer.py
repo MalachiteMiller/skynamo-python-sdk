@@ -1,7 +1,7 @@
 from typing import Union,Literal
 from datetime import datetime
-from skynamo.skynamoDataClasses.Address import Address
-from skynamo.helpers import getDateTimeObjectFromSkynamoDateTimeStr
+from skynamo.models.Address import Address
+from skynamo.shared.helpers import getDateTimeObjectFromSkynamoDateTimeStr
 from skynamo.models.Location import Location
 
 class Customer:

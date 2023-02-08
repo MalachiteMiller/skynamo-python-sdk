@@ -15,11 +15,14 @@ def getJsonReadyFieldValue(fieldValue):
 		return fieldValue
 
 def getCustomFieldIdIfFieldIsCustomField(fieldName:str):
-	## return number if field matches pattern "c{number}_*"
-	if fieldName[0]=='c' and fieldName[1:].split('_')[0].isdigit():
-		return int(fieldName[1:].split('_')[0])
-	else:
-		return None
+	## if format of "f{digit}_c{customFieldDigit}_*" or "c{customFieldDigit}_*", return customFieldDigit else return None
+	fieldName=fieldName.split('_')[0]
+	if len(fieldName)>1:
+		fieldName=fieldName[1:]
+		if fieldName.isdigit():
+			return int(fieldName)
+	return None
+
 
 def addPatchedFieldToBodyIfAllowed(body:dict,fieldName:str,fieldValue,object:object):
 	if fieldName in ['id','row_version','version','create_date','last_modified_time','tax']:
@@ -46,22 +49,42 @@ def getWriteOperationToUpdateObject(object:object,fieldsToPatch:list[str],httpMe
 	print(json.dumps(body))
 	return WriteOperation(type(object).__name__.lower()+'s', httpMethod, body)
 
+def addToCustomFieldsIfCustomField(key:str,body:dict):
+	## if format of "f{digit}_c{customFieldDigit}_*" or "c{customFieldDigit}_*", add to custom fields
+	customFieldId=getCustomFieldIdIfFieldIsCustomField(key)
+	if customFieldId!=None:
+		body['custom_fields'].append({'id':customFieldId,'value':body[key]})
+		return True
+	else:
+		return False
+
 def convertToSkynamoApiReadyValues(body:dict):
+	keysToDelete=[]
+	body['custom_fields']=[]
 	for key in body:
 		if body[key]==None:
-			del body[key]
-		elif type(body[key])==datetime:
-			body[key]=body[key].strftime('%Y-%m-%dT%H:%M:%S')
-		elif isBasicType(body[key])==False:
-			body[key]=body[key].getJsonReadyValue()
-		elif isinstance(body[key],list):
-			for i in range(len(body[key])):
-				if isBasicType(body[key][i])==False:
-					body[key][i]=body[key][i].getJsonReadyValue()
-				elif isinstance(body[key][i],dict):
-					convertToSkynamoApiReadyValues(body[key][i])
-		elif isinstance(body[key],dict):
-			convertToSkynamoApiReadyValues(body[key])
+			keysToDelete.append(key)
+		else:
+			if type(body[key])==datetime:
+				body[key]=body[key].strftime('%Y-%m-%dT%H:%M:%S')
+			elif isBasicType(body[key])==False:
+				body[key]=body[key].getJsonReadyValue()
+			elif isinstance(body[key],list):
+				for i in range(len(body[key])):
+					if isBasicType(body[key][i])==False:
+						body[key][i]=body[key][i].getJsonReadyValue()
+					elif isinstance(body[key][i],dict):
+						convertToSkynamoApiReadyValues(body[key][i])
+			elif isinstance(body[key],dict):
+				convertToSkynamoApiReadyValues(body[key])
+
+			isCustomField=addToCustomFieldsIfCustomField(key,body)
+			if isCustomField:
+				keysToDelete.append(key)
+	for key in keysToDelete:
+		del body[key]
+	if len(body['custom_fields'])==0:
+		del body['custom_fields']
 
 def getBodyForWriteOperation(locals):
 	body=locals

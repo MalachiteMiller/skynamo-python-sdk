@@ -1,8 +1,7 @@
 from typing import Union,Literal
 from datetime import datetime
-from skynamo.helpers import getDateTimeObjectFromSkynamoDateTimeStr
-from skynamo.skynamoDataClasses.Address import Address
-from skynamo.SkynamoAPI import Write
+from skynamo.shared.helpers import getDateTimeObjectFromSkynamoDateTimeStr
+from skynamo.models.Address import Address
 from skynamo.models.OrderUnit import OrderUnit
 
 class Product:

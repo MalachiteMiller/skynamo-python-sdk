@@ -3,7 +3,7 @@ from typing import Union,Literal
 from ..shared.api import makeRequest
 import ujson,math,threading
 
-def AddPageResultToExistingItemsAndReturnTotalItems(dataType:str,existingItems:dict,pageNr:int,pageSize:int,idFields:list[str],filters:str,flags:list[str]=[]):
+def AddPageResultToExistingItemsAndReturnTotalItems(dataType:str,existingItems:dict,pageNr:int,pageSize:int,filters:str,flags:list[str]=[]):
 	print(f'Pagenr: {pageNr}')
 	params:dict[str,Union[str,int]]={'page_number':pageNr,'page_size':pageSize}
 	if filters!='':
@@ -20,7 +20,16 @@ def AddPageResultToExistingItemsAndReturnTotalItems(dataType:str,existingItems:d
 	if 'data' in jsonResponse:
 		data=jsonResponse['data']
 		for item in data:
-			id=','.join([str(item[idField]) for idField in idFields])
+			id=''
+			if dataType=='stocklevels':
+				warehouseId=0
+				if 'warehouse_id' in item:
+					warehouseId=item['warehouse_id']
+				id=f'{item["product_id"]},{item["order_unit_id"]},{warehouseId}'
+			elif dataType=='prices':
+				id=f'{item["product_id"]},{item["order_unit_id"]},{item["price_list_id"]}'
+			else:
+				id=item['id']
 			existingItems[id]=item
 	return totalItems
 
@@ -35,7 +44,7 @@ def addLatestRowVersionToExistingData(existingData:dict,existingItems:dict):
 					latestRowVersion=rowVersion
 	existingData['lastRowVersion']=latestRowVersion
 
-def SyncDataTypeFromSkynamoToLocalJsonFiles(dataType,fullSync=False,idFields=['id'],syncFromLastRowVersion=False,flags:list[str]=[]):
+def SyncDataTypeFromSkynamoToLocalJsonFiles(dataType,fullSync=False,syncFromLastRowVersion=False,flags:list[str]=[]):
 	exceptionThatOccured=None
 	print(f'Starting sync for {dataType}')
 	pageSize=200
@@ -56,7 +65,7 @@ def SyncDataTypeFromSkynamoToLocalJsonFiles(dataType,fullSync=False,idFields=['i
 		pageNr=existingData['lastPageNr']
 	existingItems=existingData['items']
 	try:
-			totalItems=AddPageResultToExistingItemsAndReturnTotalItems(dataType,existingItems,pageNr,pageSize,idFields,filters,flags)
+			totalItems=AddPageResultToExistingItemsAndReturnTotalItems(dataType,existingItems,pageNr,pageSize,filters,flags)
 			pageNr=pageNr+1
 			predictedNumberOfPages=math.ceil(totalItems/pageSize)
 			while pageNr<=predictedNumberOfPages:
@@ -66,7 +75,7 @@ def SyncDataTypeFromSkynamoToLocalJsonFiles(dataType,fullSync=False,idFields=['i
 					nrThreads=20
 				threads=[]
 				for t in range(nrThreads):
-					t=threading.Thread(target=AddPageResultToExistingItemsAndReturnTotalItems,args=(dataType,existingItems,pageNr+t,pageSize,idFields,filters,flags))
+					t=threading.Thread(target=AddPageResultToExistingItemsAndReturnTotalItems,args=(dataType,existingItems,pageNr+t,pageSize,filters,flags))
 					t.start()
 					threads.append(t)
 				for thread in threads:
@@ -84,16 +93,11 @@ def SyncDataTypeFromSkynamoToLocalJsonFiles(dataType,fullSync=False,idFields=['i
 		raise exceptionThatOccured
 
 def SyncDataTypesFromSkynamo(dataTypes:list[Literal['prices','warehouses','completedforms','quotes','orders','creditrequests','users','stocklevels','customers','products','invoices','formdefinitions','interactions']]=['completedforms','quotes','orders','creditrequests','users','stocklevels','customers','products','invoices','interactions']):
-	ensureFolderExists('skynamo-data/cache')
 	fullSyncDataTypes=['users','stocklevels','formdefinitions']
 	versionedDataTypes=['customers','products','invoices']
-	dataTypesWithCustomIds={'stocklevels':['warehouse_id','product_id','order_unit_id'],'products':['product_id','order_unit_id'],'prices':['product_id','order_unit_id','price_list_id']}
 	dataTypeFlags={'formdefinitions':['show_enums'],'orders':['show_nulls'],'creditrequests':['show_nulls'],'quotes':['show_nulls']}
 	flags=[]
 	for dataType in dataTypes:
-		id='id'
-		if dataType in dataTypesWithCustomIds:
-			id=dataTypesWithCustomIds[dataType]
 		fullSync=False
 		if dataType in fullSyncDataTypes:
 			fullSync=True
@@ -102,7 +106,7 @@ def SyncDataTypesFromSkynamo(dataTypes:list[Literal['prices','warehouses','compl
 			syncFromLastRowVersion=True
 		if dataType in dataTypeFlags:
 			flags=dataTypeFlags[dataType]
-		SyncDataTypeFromSkynamoToLocalJsonFiles(dataType,fullSync,id,syncFromLastRowVersion,flags)
+		SyncDataTypeFromSkynamoToLocalJsonFiles(dataType,fullSync,syncFromLastRowVersion,flags)
 
 def refreshJsonFilesLocallyIfOutdated(dataTypes:list[Literal['prices','warehouses','completedforms','quotes','orders','creditrequests','users','stocklevels','customers','products','invoices','formdefinitions','interactions']],forceRefresh:bool=False):
 	import os

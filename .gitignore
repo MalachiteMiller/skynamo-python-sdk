@@ -1,7 +1,5 @@
 venv
 __pycache__/
  *.pyc
-skynamoInstanceDataClasses/*
-skynamo-cache/*
 skynamo-config.json
-output/*
+skynamo_data/*

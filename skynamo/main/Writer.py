@@ -5,6 +5,7 @@ from skynamo.writer.WriteOperationCls import WriteOperation
 from skynamo.models.Location import Location
 from skynamo.models.OrderUnit import OrderUnit
 from skynamo.models.LineItem import LineItem
+from skynamo.models.Address import Address
 
 from .Customer import Customer
 from .Product import Product

@@ -1,6 +1,7 @@
 import ujson
 from ..models.Transaction import Transaction
 from ..models.Address import Address
+from ..models.OrderUnit import OrderUnit
 from ..shared.helpers import getDateTimeObjectFromSkynamoDateTimeStr,getStringWithOnlyValidPythonVariableCharacters
 
 def populateUserIdAndNameFromInteractionAndReturnFormIds(transaction:Transaction,interactionsJson:dict):
@@ -24,12 +25,9 @@ def populateCustomPropsFromFormResults(transaction:Transaction,formIds:list[int]
 
 
 def setTypeCorrectedCustomFieldValue(item:object,customField:dict,customProp:str):
-	## check if customProp is in _skippedCustomFields and skip if so
-	if customProp in item._skippedCustomFields:#type:ignore
-		return
 	## check if customProp is a valid property of item
 	if customProp not in item.__dict__:
-		raise Exception(f"{customProp} is not a valid property of {type(item).__name__}. Rerun updateInstanceDataClasses.py to update this instance's data classes.")
+		return
 	if not 'value' in customField:
 		return # don't set empty values
 	typeCorrectedCustomFieldValue=customField['value']
@@ -43,7 +41,9 @@ def setTypeCorrectedCustomFieldValue(item:object,customField:dict,customProp:str
 	elif expectedPropType=='datetime':
 		typeCorrectedCustomFieldValue=getDateTimeObjectFromSkynamoDateTimeStr(typeCorrectedCustomFieldValue)
 	elif expectedPropType=='Address':
-		typeCorrectedCustomFieldValue=Address(typeCorrectedCustomFieldValue)
+		adr=Address()
+		adr.populateFromJsonValue(typeCorrectedCustomFieldValue)
+		typeCorrectedCustomFieldValue=adr
 	elif expectedPropType[:4]=='list':
 		stringAr=typeCorrectedCustomFieldValue.split(',')
 		if expectedPropType[5:8]=='int':

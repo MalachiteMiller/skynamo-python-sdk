@@ -11,17 +11,17 @@ class WriterBase:
 	def __init__(self):
 		self.writeOperations:list[WriteOperation]=[]
 	def apply(self):
-		executeWrites(self.writeOperations)
+		return executeWrites(self.writeOperations)
 	##unchanging update operations
 	def addStockLevelUpdate(self,product_id:int,order_unit_id:int,level:int,warehouse_id:int=0,label:Union[None,str]=None):
 		item={'product_id': product_id, 'order_unit_id': order_unit_id, 'level': level}
 		addWarehouseAndLabelToStockLevelUpdateIfPresent(item,warehouse_id,label)
-		self.writeOperations.append(WriteOperation("stocklevels", "put", item))
+		self.writeOperations.append(WriteOperation("stocklevels", "post", item))
 
 	def addStockLevelUpdateUsingProductCodeAndUnitName(self,product_code:str,order_unit_name:str,level:int,warehouse_id:int=0,label:Union[None,str]=None):
 		item={'product_code': product_code, 'order_unit_name': order_unit_name, 'level': level}
 		addWarehouseAndLabelToStockLevelUpdateIfPresent(item,warehouse_id,label)
-		self.writeOperations.append(WriteOperation("stocklevels", "put", item))
+		self.writeOperations.append(WriteOperation("stocklevels", "post", item))
 
 	def addPriceUpdate(self,product_id:int,order_unit_id:int,price:float,price_list_id:int,tax_rate_id:Union[None,int]=None):
 		item= {'product_id': product_id, 'order_unit_id': order_unit_id, 'price': price, 'price_list_id': price_list_id}
@@ -38,12 +38,19 @@ class WriterBase:
 	def addInvoiceUpdate(self,invoice:Invoice,fieldsToUpdate:list[str]):
 		self.writeOperations.append(getWriteOperationToUpdateObject(invoice,fieldsToUpdate))
 	##unchanging create operations
-	def addInvoiceCreate(self,date:datetime,customer_code:str,items:list[InvoiceItem],reference='',status:Union[None,Literal['Draft','Authorized','Delivered','Outstanding','Paid','Deleted']]=None,due_date:Union[None,datetime]=None,tax_inclusion:Union[None,Literal['Included','Excluded']]=None,outstanding_balance:Union[None,float]=None):
-		self.writeOperations.append(WriteOperation("invoices", "post", getBodyForWriteOperation(locals())))
+	def addInvoiceCreate(self,date:datetime,customer_code:str,items:list[InvoiceItem],reference='',status:Union[None,Literal['Draft','Authorized','Delivered','Outstanding','Paid','Deleted']]=None,due_date:Union[None,datetime]=None,taxIsIncludedInLineValues=True,outstanding_balance:Union[None,float]=None):
+		body=getBodyForWriteOperation(locals())
+		del body['taxIsIncludedInLineValues']
+		if not(taxIsIncludedInLineValues):
+			for item in body['items']:
+				taxAmount=0
+				if 'tax_amount' in item:
+					taxAmount=item['tax_amount']
+				item['value']=item['value']+taxAmount
+		self.writeOperations.append(WriteOperation("invoices", "post", body))
 
-	def addScheduledVisitCreate(self,user_name:str,customer_code:str,due_date:datetime,end_time:Union[datetime,None]=None,comment:Union[None,str]=None):
+	def addScheduledVisitCreate(self,assigned_user_name:str,customer_code:str,due_date:datetime,end_time:Union[datetime,None]=None,comment:Union[None,str]=None):
 		body=getBodyForWriteOperation(locals())
 		if end_time==None:
-			del body['end_time']
 			body['all_day']=True
 		self.writeOperations.append(WriteOperation("scheduledvisits", "post", body))

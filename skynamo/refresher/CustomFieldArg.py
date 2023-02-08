@@ -13,17 +13,17 @@ class CustomFieldArg:
 		elif customFieldType=='Date Time Field':
 			argType='datetime'
 		elif customFieldType=='Single Value Enumeration Field':
-			commaSeparatedOptions=__getCommaSeperatedEnums(customField['enumeration_values'])
-			argType=f'Literal["{commaSeparatedOptions}"]'
+			commaSeparatedOptions=_getCommaSeperatedEnums(customField['enumeration_values'])
+			argType=f'Literal[{commaSeparatedOptions}]'
 		elif customFieldType=='Multi Value Enumeration Field':
-			commaSeparatedOptions=__getCommaSeperatedEnums(customField['enumeration_values'])
-			argType=f'list[Literal["{commaSeparatedOptions}"]]'
+			commaSeparatedOptions=_getCommaSeperatedEnums(customField['enumeration_values'])
+			argType=f'list[Literal[{commaSeparatedOptions}]]'
 		elif customFieldType=='Single Value Hierarchical Enumeration Field':
-			commaSeparatedOptions=__getCommaSeperatedEnumsForNestedEnums(customField['enumeration_values'])
-			argType=f'Literal["{commaSeparatedOptions}"]'
+			commaSeparatedOptions=_getCommaSeperatedEnumsForNestedEnums(customField['enumeration_values'])
+			argType=f'Literal[{commaSeparatedOptions}]'
 		elif customFieldType=='Multi Value Hierarchical Enumeration Field':
-			commaSeparatedOptions=__getCommaSeperatedEnumsForNestedEnums(customField['enumeration_values'])
-			argType=f'list[Literal["{commaSeparatedOptions}"]]'
+			commaSeparatedOptions=_getCommaSeperatedEnumsForNestedEnums(customField['enumeration_values'])
+			argType=f'list[Literal[{commaSeparatedOptions}]]'
 		elif customFieldType=='Address Field':
 			argType='Address'
 		elif customFieldType=='Single Value Lookup Entity Field':
@@ -34,7 +34,7 @@ class CustomFieldArg:
 		self.argName:str=customPropName
 		self.required:bool=customField['required']
 
-def __getFormPrefix(formDef):
+def _getFormPrefix(formDef):
 	formType=formDef['type']
 	formPrefix=''
 	formId=formDef['id']
@@ -42,30 +42,40 @@ def __getFormPrefix(formDef):
 		formPrefix=f'f{formId}_'
 	return formPrefix
 
-def __getCommaSeperatedEnums(enumerationValues:list[dict]):
+def _getCommaSeperatedEnums(enumerationValues:list[dict]):
 	commaSeparatedOptions=''
 	for enum in enumerationValues:
-		commaSeparatedOptions+=f'{enum["label"]},'
+		option=enum["label"]
+		##remove non-ascii characters
+		option=option.encode('ascii', 'ignore').decode('ascii')
+		commaSeparatedOptions+=f'"{option}",'
 	return commaSeparatedOptions[:-1]
 
-def __getCommaSeperatedEnumsForNestedEnums(enumValues:list[dict]):
+def _getCommaSeperatedEnumsForNestedEnums(enumValues:list[dict]):
 	commaSeparatedOptions=''
 	parentToChildEnumValues={}
 	for enum in enumValues:
+		
 		if 'parent_id' not in enum:
 			parentToChildEnumValues[enum['id']]={'label':enum['label'],'children':[]}
 		else:
 			parentToChildEnumValues[enum['parent_id']]['children'].append(enum)
 	for parentEnumId in parentToChildEnumValues:
 		for childEnum in parentToChildEnumValues[parentEnumId]['children']:
-			commaSeparatedOptions+=f'{parentToChildEnumValues[parentEnumId]["label"]} - {childEnum["label"]},'
+			parentOption=parentToChildEnumValues[parentEnumId]['label']
+			childOption=childEnum['label']
+			##remove non-ascii characters
+			parentOption=parentOption.encode('ascii', 'ignore').decode('ascii')
+			childOption=childOption.encode('ascii', 'ignore').decode('ascii')
+
+			commaSeparatedOptions+=f'"{parentOption} - {childOption}",'
 	return commaSeparatedOptions[:-1]
 
 def getListCustomFieldArgs(formDef):
 	customFields=formDef['custom_fields']
 	skippedCustomFieldTypes=['Images Field','Signature Field','Sketch Field','Divider Field','Label Field']
 	listOfCustomFieldArgs:list[CustomFieldArg]=[]
-	formPrefix=__getFormPrefix(formDef)
+	formPrefix=_getFormPrefix(formDef)
 	for customField in customFields:
 		customFieldType=customField['type']
 		if customFieldType in skippedCustomFieldTypes:

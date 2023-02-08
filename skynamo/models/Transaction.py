@@ -1,6 +1,6 @@
 from typing import Union
 from datetime import datetime
-from skynamo.helpers import getDateTimeObjectFromSkynamoDateTimeStr
+from ..shared.helpers import getDateTimeObjectFromSkynamoDateTimeStr
 from .LineItem import LineItem
 
 class Transaction:
