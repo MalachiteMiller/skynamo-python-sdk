@@ -9,7 +9,9 @@ class Invoice:
 		self.date:datetime=getDateTimeObjectFromSkynamoDateTimeStr(json['date'])
 		self.customer_id:int=json['customer_id']
 		self.customer_code:str=json['customer_code']
-		self.reference:str=json['reference']
+		self.reference:Union[str,None]=None
+		if 'reference' in json:
+			self.reference=json['reference']
 		self.row_version:int=json['row_version']
 		self.last_modified_time:datetime=getDateTimeObjectFromSkynamoDateTimeStr(json['last_modified_time'])
 		self.status:Union[None,Literal['Draft','Authorized','Delivered','Outstanding','Paid','Deleted']]=None
