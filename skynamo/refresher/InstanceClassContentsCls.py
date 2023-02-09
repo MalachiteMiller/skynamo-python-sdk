@@ -90,7 +90,10 @@ class InstanceClassContents:
 				else:
 					optionalCustomFieldsArgsAsString.append(f'{customFieldArg.argName}:Union[{customFieldArg.argType},None]=None')
 			placeHolder=f'##|required{modelClassName}CustomFields|##'
-			self.writerContent=self.writerContent.replace(placeHolder,','.join(requiredCustomFieldsArgsAsString)+placeHolder)
+			replacement=placeHolder
+			if len(requiredCustomFieldsArgsAsString)>0:
+				replacement=','+replacement
+			self.writerContent=self.writerContent.replace(placeHolder,','.join(requiredCustomFieldsArgsAsString)+replacement)
 			placeHolder=f'##|optional{modelClassName}CustomFields|##'
 			self.writerContent=self.writerContent.replace(placeHolder,','.join(optionalCustomFieldsArgsAsString)+placeHolder)
 
