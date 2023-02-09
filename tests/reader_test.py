@@ -32,7 +32,7 @@ class TestReader(unittest.TestCase):
 		self.assertNotEqual(len(creditRequests),0)
 	def test_GetAllOrders(self):
 		reader=Reader()
-		orders=reader.getOrders()
+		orders=reader.getOrders(forceRefresh=True)
 		self.assertNotEqual(len(orders),0)
 	def test_getWarehouses(self):
 		reader=Reader()

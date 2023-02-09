@@ -11,7 +11,9 @@ class WriterBase:
 	def __init__(self):
 		self.writeOperations:list[WriteOperation]=[]
 	def apply(self):
-		return executeWrites(self.writeOperations)
+		res= executeWrites(self.writeOperations)
+		self.writeOperations=[]
+		return res
 	##unchanging update operations
 	def addStockLevelUpdate(self,product_id:int,order_unit_id:int,level:int,warehouse_id:int=0,label:Union[None,str]=None):
 		item={'product_id': product_id, 'order_unit_id': order_unit_id, 'level': level}

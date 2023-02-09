@@ -11,8 +11,11 @@ def getJsonReadyFieldValue(fieldValue):
 		return fieldValue.strftime('%Y-%m-%dT%H:%M:%S')
 	elif isBasicType(fieldValue)==False:
 		return fieldValue.getJsonReadyValue()
-	else:
-		return fieldValue
+	elif isinstance(fieldValue,list):
+		for i in range(len(fieldValue)):
+			if isBasicType(fieldValue[i])==False:
+				fieldValue[i]=fieldValue[i].getJsonReadyValue()
+	return fieldValue
 
 def getCustomFieldIdIfFieldIsCustomField(fieldName:str):
 	## if format of "f{digit}_c{customFieldDigit}_*" or "c{customFieldDigit}_*", return customFieldDigit else return None
@@ -21,6 +24,12 @@ def getCustomFieldIdIfFieldIsCustomField(fieldName:str):
 		fieldName=fieldName[1:]
 		if fieldName.isdigit():
 			return int(fieldName)
+		else:
+			fieldName=fieldName.split('_')[0]
+			if len(fieldName)>1:
+				fieldName=fieldName[1:]
+				if fieldName.isdigit():
+					return int(fieldName)
 	return None
 
 
@@ -43,10 +52,18 @@ def getWriteOperationToUpdateObject(object:object,fieldsToPatch:list[str],httpMe
 	for fieldName in fieldsToPatch:
 		fieldValue=object.__dict__[fieldName]
 		if fieldValue==None:
-			raise Exception(f'Error in field: {fieldName}. If a field has a value, the value cannot be removed (set to None).')
+			raise Exception(f'Error in field: {fieldName}, it is set to null. If you want to remove a value for customers or products, you need to do writer.addReplaceCustomer() or writer.addReplaceProdct()')
 		addPatchedFieldToBodyIfAllowed(body,fieldName,object.__dict__[fieldName],object)
 	import json
 	print(json.dumps(body))
+	return WriteOperation(type(object).__name__.lower()+'s', httpMethod, body)
+
+def getWriteOperationToPutObject(object:object,httpMethod:Literal['patch','put','post']='put'):
+	body=object.__dict__.copy()
+	for fieldToNotUpdate in ['row_version','version','create_date','last_modified_time']:
+		if fieldToNotUpdate in body:
+			del body[fieldToNotUpdate]
+	convertToSkynamoApiReadyValues(body)
 	return WriteOperation(type(object).__name__.lower()+'s', httpMethod, body)
 
 def addToCustomFieldsIfCustomField(key:str,body:dict):

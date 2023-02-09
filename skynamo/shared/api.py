@@ -20,6 +20,9 @@ def getHeaders():
 	return {'x-api-client':instanceName,'x-api-key':apiKey,'accept':'application/json'}
 
 def makeRequest(method:Literal['get','post','patch','put'],dataType:str,dataOrParams:Union[list,dict[str,Any]]={}):
+	print(method)
+	print(dataType)
+	print(dataOrParams)
 	if method=='get':
 		return requests.get(getApiBase()+dataType,headers=getHeaders(),params=dataOrParams).json()
 	elif method=='post':

@@ -22,8 +22,9 @@ class Transaction:
 		self.last_modified_time:datetime=getDateTimeObjectFromSkynamoDateTimeStr(json['last_modified_time'])
 		self.items:list[LineItem]=[]
 		for item in json['items']:
-			inputDict={'product_code':item['product_code'],'quantity':item['quantity'],'order_unit_name':item['order_unit_name'],'unit_price':item['unit_price'],'list_price':item['list_price'],'tax_rate_value':item['tax_rate_value'],'tax_rate_id':item['tax_rate_id']}
+			inputDict={'multiplier':1,'product_code':item['product_code'],'quantity':item['quantity'],'unit_name':item['order_unit_name'],'unit_price':item['unit_price'],'list_price':item['list_price'],'tax_rate_value':item['tax_rate_value'],'tax_rate_id':item['tax_rate_id']}
 			lineItem=LineItem(**inputDict)
+			lineItem.multiplier=None
 			lineItem.product_name=item['product_name']
 			self.items.append(lineItem)
 
