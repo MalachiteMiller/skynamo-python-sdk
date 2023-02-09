@@ -8,6 +8,10 @@ This package is a python SDK for skynamo public API. It allows you to pull data 
 - Saving raw or processed (e.g with filters or by combining different data types) skynamo data in csv files, which can be usefull for reporting.
 - Sending emails using your gmail account.
 
+## Performance
+- Requests to Skynamo's API is made in parallel to speed up responses
+- Pulled data from Skynamo is cached with only the changes being pulled, to ensure the request limit of your access token is not hit
+
 ## Requirements
 - Python 3.6 or higher installed on your machine
 - pip installed on your machine
@@ -41,38 +45,45 @@ Add skynamo-config.json in the root directory of your repository with the follow
 
 ## Creating your instance's data classes
 ```python
-from skynamo import updateInstanceDataClasses
+from skynamo import refreshCustomFormsAndFields
 
-updateInstanceDataClasses()
+refreshCustomFormsAndFields()
 ```
-This creates files in skynamoInstanceDataClasses folder with file containing python classes. Each class represents a data model that can be customized using skynamo's forms.
+This creates files in the skynamo_data/code folder with files containing python classes. Each class represents a data model that can be customized using skynamo's forms.
 
 ## Pulling data from your skynamo instance
+To pull any data from your skynamo instance, you need to import the Reader class and call the get method for the data you want to pull. For example, to pull all customers from your skynamo instance, you would do the following:
 ```python
-from skynamo import getCreditRequests, getCustomers, getOrders, getProducts, getQuotes, getFormResults, getInvoices, getStockLevels
+from skynamo_data.code.Reader import Reader
 
-creditRequests=getCreditRequests()
-customers=getCustomers()
-orders=getOrders()
-quotes=getQuotes()
-products=getProducts()
-invoices=getInvoices()
-stockLevels=getStockLevels()
-
-from skynamoInstanceDataClasses import My_Custom_Form_f23
-formResults=getFormResults(My_Custom_Form_f23)
+reader=Reader()
+customers=reader.getCustomers()
 ```
 
-## Updating data in your skynamo instance
-To speed up any puts, posts or patches to your skynamo instance, this package creates write batches which it runs in parallel. To make any puts, posts or patches you need to build up a list of write objects and give the list to the 'makeWrites' method as shown below:
+If you are using an IDE like Visual Studio Code you will see all the available options for pulling data if you simply type "reader." (like shown in the image below):
+
+![alt text](doc/PullingData.png)
+
+To make it easier to work with data pulled from Skynamo, all data is saved as objects making it possible for your IDE to show you what properties are available for each data object. See below as an example:
+
+![alt text](doc/Working%20with%20pulled%20data.png)
+
+## Writing data to your skynamo instance
+To make any puts, posts or patches you need to build up a list of writes and then apply them together as shown below:
 ```python
-from skynamo import makeWrites,getStockLevelPutUsingProductCodeAndOrderUnitName
+from skynamo_data.code.Writer import Writer
 
-stockLevelUpdate1 = getStockLevelPutUsingProductCodeAndOrderUnitName("a", "Unit", 1)
-stockLevelUpdate2 = getStockLevelPutUsingProductCodeAndOrderUnitName("b", "Unit", 1)
-listOfErrors=makeWrites([stockLevelUpdate1,stockLevelUpdate2]) #listOfErrors will be empty if all writes were successful
+writer=Writer()
+writer.addCustomerCreate('GEP001','Gepa Store')
+writer.addStockLevelUpdateUsingProductCodeAndUnitName('SKU 010','Cases',12)
+listOfErrors=writer.apply()
+if listOfErrors!=[]:
+	print(listOfErrors)
 ```
+If you are using an IDE like Visual Studio Code you will see all the available options for writing data if you simply type "writer." (like shown in the image below):
 
-## Examples
-Look in the tests folder for basic examples of how to use the package.
-Look in this examples folder for some examples of more advanced usage.
+![alt text](doc/GettingListOfWriteOperations.png)
+
+Furthermore, after selecting the desired write method you will get a clear guide of what inputs are required/allowed and what data types they must be as shown below:
+
+![alt text](doc/Adding%20correct%20inputs%20to%20write%20method.png)
