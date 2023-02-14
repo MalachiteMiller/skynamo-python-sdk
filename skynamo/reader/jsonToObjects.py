@@ -3,6 +3,7 @@ from ..models.Transaction import Transaction
 from ..models.Address import Address
 from ..models.OrderUnit import OrderUnit
 from ..shared.helpers import getDateTimeObjectFromSkynamoDateTimeStr,getStringWithOnlyValidPythonVariableCharacters
+from typing import List
 
 def populateUserIdAndNameFromInteractionAndReturnFormIds(transaction:Transaction,interactionsJson:dict):
 	interaction=interactionsJson['items'][str(transaction.interaction_id)]
@@ -13,7 +14,7 @@ def populateUserIdAndNameFromInteractionAndReturnFormIds(transaction:Transaction
 		formIds=interaction['completed_form_ids']
 	return formIds
 
-def populateCustomPropsFromFormResults(transaction:Transaction,formIds:list[int],completedForms:dict):
+def populateCustomPropsFromFormResults(transaction:Transaction,formIds:List[int],completedForms:dict):
 	for id in formIds:
 		formRes=completedForms['items'][str(id)]
 		for customField in formRes['custom_fields']:

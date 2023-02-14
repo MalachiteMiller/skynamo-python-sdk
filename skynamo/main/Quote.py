@@ -1,4 +1,4 @@
-from typing import Union,Literal
+from typing import Union,Literal,List,Dict
 from datetime import datetime
 from skynamo.models.Address import Address
 from skynamo.shared.helpers import getDateTimeObjectFromSkynamoDateTimeStr

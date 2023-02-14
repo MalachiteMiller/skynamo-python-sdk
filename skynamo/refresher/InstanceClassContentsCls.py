@@ -2,6 +2,7 @@ from ..shared.helpers import writeToInstanceSpecificFile,clearInstanceSpecificFo
 import os
 from .refreshHelpers import getNameOfModelClassOnWhichToAddCustomFieldFromFormDefinition,isCustomForm
 from .CustomFieldArg import getListCustomFieldArgs,CustomFieldArg
+from typing import List,Dict
 
 def getStringContentOfClassInMainFolder(className:str):
 	if className[-3:]!='.py':
@@ -45,11 +46,11 @@ class InstanceClassContents:
 			customFieldArgsWithPropTypes={}
 			if modelClassName in self.modelNameToCustomFieldPropTypes:
 				customFieldArgsWithPropTypes=self.modelNameToCustomFieldPropTypes[modelClassName]
-			classContent+=f'\t\tself._customFieldPropTypes:dict[str,str]={customFieldArgsWithPropTypes}\r'
+			classContent+=f'\t\tself._customFieldPropTypes:Dict[str,str]={customFieldArgsWithPropTypes}\r'
 			self.__updateClassContents(modelClassName,classContent)
 		for customFormName,customFormContent in self.customFormsContent.items():
 			customFieldArgsWithPropTypes=self.modelNameToCustomFieldPropTypes[customFormName]
-			customFormContent+=f'\t\tself._customFieldPropTypes:dict[str,str]={customFieldArgsWithPropTypes}\r'
+			customFormContent+=f'\t\tself._customFieldPropTypes:Dict[str,str]={customFieldArgsWithPropTypes}\r'
 			self.customFormsContent[customFormName]=customFormContent
 
 	def addFormDefinitionToRelevantClassContents(self,formDef:dict):
@@ -63,7 +64,7 @@ class InstanceClassContents:
 		self.__addCustomFieldsToWriterIfApplicable(customFieldArgs,modelClassName)
 		self.__addCustomFormGetMethodsToReader(modelClassName)
 
-	def __addCustomFieldsToRelevantModelClassContents(self,customFieldArgs:list[CustomFieldArg],modelClassName:str,formId:str):
+	def __addCustomFieldsToRelevantModelClassContents(self,customFieldArgs:List[CustomFieldArg],modelClassName:str,formId:str):
 		modelClassString=self.__customFormBaseContent.replace(f'class CustomForm(',f'class {modelClassName}(')
 		if not(isCustomForm(modelClassName)):
 			modelClassString=self.__getattribute__(f'{modelClassName.lower()}Content')
@@ -80,7 +81,7 @@ class InstanceClassContents:
 		else:
 			self.customFormsContent[modelClassName]=modelClassString
 
-	def __addCustomFieldsToWriterIfApplicable(self,customFieldArgs:list[CustomFieldArg],modelClassName:str):
+	def __addCustomFieldsToWriterIfApplicable(self,customFieldArgs:List[CustomFieldArg],modelClassName:str):
 		if not(isCustomForm(modelClassName)):
 			requiredCustomFieldsArgsAsString=[]
 			optionalCustomFieldsArgsAsString=[]
@@ -104,6 +105,6 @@ class InstanceClassContents:
 			self.readerContent=self.readerContent.replace(importPlaceHolder,importString+importPlaceHolder)
 			getMethodString=f'\tdef get{modelClassName}(self,forceRefresh=False):\r'
 			getMethodString+=f'\t\trefreshJsonFilesLocallyIfOutdated(["completedforms"],forceRefresh)\r'
-			getMethodString+=f'\t\tresult:list[{modelClassName}]=getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation("completedforms"),{modelClassName})\r'
+			getMethodString+=f'\t\tresult:List[{modelClassName}]=getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation("completedforms"),{modelClassName})\r'
 			getMethodString+=f'\t\treturn result\r'
 			self.readerContent+=getMethodString

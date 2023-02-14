@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union,List
 from datetime import datetime
 from ..shared.helpers import getDateTimeObjectFromSkynamoDateTimeStr
 from .LineItem import LineItem
@@ -20,7 +20,7 @@ class Transaction:
 		self.warehouse_name:Union[str,None]=json['warehouse_name']
 		self.email_recipients:Union[str,None]=json['email_recipients']
 		self.last_modified_time:datetime=getDateTimeObjectFromSkynamoDateTimeStr(json['last_modified_time'])
-		self.items:list[LineItem]=[]
+		self.items:List[LineItem]=[]
 		for item in json['items']:
 			inputDict={'multiplier':1,'product_code':item['product_code'],'quantity':item['quantity'],'unit_name':item['order_unit_name'],'unit_price':item['unit_price'],'list_price':item['list_price'],'tax_rate_value':item['tax_rate_value'],'tax_rate_id':item['tax_rate_id']}
 			lineItem=LineItem(**inputDict)

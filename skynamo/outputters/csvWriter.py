@@ -1,6 +1,7 @@
 import csv
 from ..shared.helpers import ensureFolderExists,getPathRelativeToSkynamoDataFolder
-def writeListOfObjectsToCsvWithObjectPropertiesAsColumnNames(listOfObjects:list, filename: str,columnsOrder:list[str]=[],delimiter: str = ',') -> None:
+from typing import List
+def writeListOfObjectsToCsvWithObjectPropertiesAsColumnNames(listOfObjects:list, filename: str,columnsOrder:List[str]=[],delimiter: str = ',') -> None:
 	##ensure filename is in output folder
 	if 'output/' != filename[:7]:
 		filename = 'output/' + filename

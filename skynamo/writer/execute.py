@@ -2,8 +2,9 @@ from .WriteOperationCls import WriteOperation
 from .WriteErrorCls import WriteError
 from ..shared.api import makeRequest
 import math,threading
+from typing import List
 
-def executeWrites(writeOperations:list[WriteOperation]):
+def executeWrites(writeOperations:List[WriteOperation]):
 	writeBatchesGroupedByDataTypeAndHttpMethod=[]
 	for write in writeOperations:
 		found=False
@@ -14,15 +15,15 @@ def executeWrites(writeOperations:list[WriteOperation]):
 				break
 		if not found:
 			writeBatchesGroupedByDataTypeAndHttpMethod.append([write])
-	subBatchesWithMaxSizeOf20:list[list[WriteOperation]]=[]
+	subBatchesWithMaxSizeOf20:List[List[WriteOperation]]=[]
 	for writeBatch in writeBatchesGroupedByDataTypeAndHttpMethod:
 		for i in range(math.ceil(len(writeBatch)/20)):
 			subBatchesWithMaxSizeOf20.append(writeBatch[i*20:i*20+20])
 	return __makeThreadedWrites(subBatchesWithMaxSizeOf20)
 
-def __makeThreadedWrites(subBatchesWithMaxSizeOf20:list[list[WriteOperation]]):
+def __makeThreadedWrites(subBatchesWithMaxSizeOf20:List[List[WriteOperation]]):
 	threads=[]
-	errors:list[WriteError]=[]
+	errors:List[WriteError]=[]
 	for subBatch in subBatchesWithMaxSizeOf20:
 		threads.append(threading.Thread(target=__makeWriteRequest,args=(subBatch,errors)))
 	for thread in threads:
@@ -31,7 +32,7 @@ def __makeThreadedWrites(subBatchesWithMaxSizeOf20:list[list[WriteOperation]]):
 		thread.join()
 	return errors
 
-def __makeWriteRequest(writeOperations:list[WriteOperation],errors:list[WriteError]):
+def __makeWriteRequest(writeOperations:List[WriteOperation],errors:List[WriteError]):
 	writeItems=[]
 	for write in writeOperations:
 		writeItems.append(write.itemOrId)

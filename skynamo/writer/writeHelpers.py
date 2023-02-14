@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Literal,Union
+from typing import Literal,Union,List
 
 from .WriteOperationCls import WriteOperation
 
@@ -47,7 +47,7 @@ def addPatchedFieldToBodyIfAllowed(body:dict,fieldName:str,fieldValue,object:obj
 	else:
 		body[fieldName]=jsonReadyFieldValue
 
-def getWriteOperationToUpdateObject(object:object,fieldsToPatch:list[str],httpMethod:Literal['patch','put','post']='patch'):
+def getWriteOperationToUpdateObject(object:object,fieldsToPatch:List[str],httpMethod:Literal['patch','put','post']='patch'):
 	body={'id':object.id}#type:ignore
 	for fieldName in fieldsToPatch:
 		fieldValue=object.__dict__[fieldName]

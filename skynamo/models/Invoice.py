@@ -1,4 +1,4 @@
-from typing import Literal,Union
+from typing import Literal,Union,List
 from datetime import datetime
 from ..shared.helpers import getDateTimeObjectFromSkynamoDateTimeStr
 from .InvoiceItem import InvoiceItem
@@ -32,7 +32,7 @@ class Invoice:
 		self.outstanding_balance:Union[None,float]=None
 		if 'outstanding_balance' in json:
 			self.outstanding_balance=json['outstanding_balance']
-		self.items:list[InvoiceItem]=[]
+		self.items:List[InvoiceItem]=[]
 		for item in json['items']:
 			inputToInvoiceItem={'product_id':item['product_id'],'product_code':item['product_code'],'quantity':item['quantity'],'totalLineValue':item['value']}
 			if 'tax_amount' in item:

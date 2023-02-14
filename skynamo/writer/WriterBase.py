@@ -5,11 +5,12 @@ from typing import Union,Literal,Union
 from ..models.Invoice import Invoice
 from ..models.InvoiceItem import InvoiceItem
 from datetime import datetime
+from typing import List
 
 
 class WriterBase:
 	def __init__(self):
-		self.writeOperations:list[WriteOperation]=[]
+		self.writeOperations:List[WriteOperation]=[]
 	def apply(self):
 		res= executeWrites(self.writeOperations)
 		self.writeOperations=[]
@@ -37,10 +38,10 @@ class WriterBase:
 			item['tax_rate_id']=tax_rate_id
 		self.writeOperations.append(WriteOperation("prices", "post",item))
 
-	def addInvoiceUpdate(self,invoice:Invoice,fieldsToUpdate:list[str]):
+	def addInvoiceUpdate(self,invoice:Invoice,fieldsToUpdate:List[str]):
 		self.writeOperations.append(getWriteOperationToUpdateObject(invoice,fieldsToUpdate))
 	##unchanging create operations
-	def addInvoiceCreate(self,date:datetime,customer_code:str,items:list[InvoiceItem],reference='',status:Union[None,Literal['Draft','Authorized','Delivered','Outstanding','Paid','Deleted']]=None,due_date:Union[None,datetime]=None,taxIsIncludedInLineValues=True,outstanding_balance:Union[None,float]=None):
+	def addInvoiceCreate(self,date:datetime,customer_code:str,items:List[InvoiceItem],reference='',status:Union[None,Literal['Draft','Authorized','Delivered','Outstanding','Paid','Deleted']]=None,due_date:Union[None,datetime]=None,taxIsIncludedInLineValues=True,outstanding_balance:Union[None,float]=None):
 		body=getBodyForWriteOperation(locals())
 		del body['taxIsIncludedInLineValues']
 		if not(taxIsIncludedInLineValues):

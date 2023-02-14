@@ -1,6 +1,6 @@
 import os
 import requests
-from typing import Literal,Any,Union
+from typing import Literal,Any,Union,Dict
 from .helpers import updateEnvironmentVariablesFromJsonConfig
 
 def getApiBase():
@@ -19,7 +19,7 @@ def getHeaders():
 		apiKey=os.environ.get('SKYNAMO_API_KEY')
 	return {'x-api-client':instanceName,'x-api-key':apiKey,'accept':'application/json'}
 
-def makeRequest(method:Literal['get','post','patch','put'],dataType:str,dataOrParams:Union[list,dict[str,Any]]={}):
+def makeRequest(method:Literal['get','post','patch','put'],dataType:str,dataOrParams:Union[list,Dict[str,Any]]={}):
 	print(method)
 	print(dataType)
 	print(dataOrParams)

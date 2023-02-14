@@ -1,4 +1,6 @@
 from ..shared.helpers import getStringWithOnlyValidPythonVariableCharacters
+from typing import List
+
 class CustomFieldArg:
 	def __init__(self,customField:dict,formPrefix:str):
 		customFieldType=customField['type']
@@ -17,19 +19,19 @@ class CustomFieldArg:
 			argType=f'Literal[{commaSeparatedOptions}]'
 		elif customFieldType=='Multi Value Enumeration Field':
 			commaSeparatedOptions=_getCommaSeperatedEnums(customField['enumeration_values'])
-			argType=f'list[Literal[{commaSeparatedOptions}]]'
+			argType=f'List[Literal[{commaSeparatedOptions}]]'
 		elif customFieldType=='Single Value Hierarchical Enumeration Field':
 			commaSeparatedOptions=_getCommaSeperatedEnumsForNestedEnums(customField['enumeration_values'])
 			argType=f'Literal[{commaSeparatedOptions}]'
 		elif customFieldType=='Multi Value Hierarchical Enumeration Field':
 			commaSeparatedOptions=_getCommaSeperatedEnumsForNestedEnums(customField['enumeration_values'])
-			argType=f'list[Literal[{commaSeparatedOptions}]]'
+			argType=f'List[Literal[{commaSeparatedOptions}]]'
 		elif customFieldType=='Address Field':
 			argType='Address'
 		elif customFieldType=='Single Value Lookup Entity Field':
 			argType='int'
 		elif customFieldType=='Multi Value Lookup Entity Field':
-			argType='list[int]'
+			argType='List[int]'
 		self.argType:str=argType
 		self.argName:str=customPropName
 		self.required:bool=customField['required']
@@ -42,7 +44,7 @@ def _getFormPrefix(formDef):
 		formPrefix=f'f{formId}_'
 	return formPrefix
 
-def _getCommaSeperatedEnums(enumerationValues:list[dict]):
+def _getCommaSeperatedEnums(enumerationValues:List[dict]):
 	commaSeparatedOptions=''
 	for enum in enumerationValues:
 		option=enum["label"]
@@ -51,7 +53,7 @@ def _getCommaSeperatedEnums(enumerationValues:list[dict]):
 		commaSeparatedOptions+=f'"{option}",'
 	return commaSeparatedOptions[:-1]
 
-def _getCommaSeperatedEnumsForNestedEnums(enumValues:list[dict]):
+def _getCommaSeperatedEnumsForNestedEnums(enumValues:List[dict]):
 	commaSeparatedOptions=''
 	parentToChildEnumValues={}
 	for enum in enumValues:
@@ -74,7 +76,7 @@ def _getCommaSeperatedEnumsForNestedEnums(enumValues:list[dict]):
 def getListCustomFieldArgs(formDef):
 	customFields=formDef['custom_fields']
 	skippedCustomFieldTypes=['Images Field','Signature Field','Sketch Field','Divider Field','Label Field']
-	listOfCustomFieldArgs:list[CustomFieldArg]=[]
+	listOfCustomFieldArgs:List[CustomFieldArg]=[]
 	formPrefix=_getFormPrefix(formDef)
 	for customField in customFields:
 		customFieldType=customField['type']

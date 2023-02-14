@@ -11,6 +11,7 @@ from skynamo.models.StockLevel import StockLevel
 from skynamo.reader.jsonToObjects import getListOfObjectsFromJsonFile,populateCustomPropsFromFormResults,populateUserIdAndNameFromInteractionAndReturnFormIds
 from skynamo.reader.sync import refreshJsonFilesLocallyIfOutdated,getSynchedDataTypeFileLocation
 import ujson
+from typing import List,Dict
 ##|customImports|##
 
 def _getTransactions(transactionClass,forceRefresh=False):
@@ -32,50 +33,50 @@ class Reader:
 	def __init__(self):
 		pass
 	def getOrders(self,forceRefresh=False):
-		orders:list[Order]=_getTransactions(Order,forceRefresh)
+		orders:List[Order]=_getTransactions(Order,forceRefresh)
 		return orders
 
 	def getCreditRequests(self,forceRefresh=False):
-		creditRequests:list[CreditRequest]=_getTransactions(CreditRequest,forceRefresh)
+		creditRequests:List[CreditRequest]=_getTransactions(CreditRequest,forceRefresh)
 		return creditRequests
 
 	def getQuotes(self,forceRefresh=False):
-		quotes:list[Quote]=_getTransactions(Quote,forceRefresh)
+		quotes:List[Quote]=_getTransactions(Quote,forceRefresh)
 		return quotes
 
 	def getProducts(self,forceRefresh=False):
 		refreshJsonFilesLocallyIfOutdated(['products'],forceRefresh)
-		products:list[Product]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('products'),Product)
+		products:List[Product]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('products'),Product)
 		return products
 
 	def getCustomers(self,forceRefresh=False):
 		refreshJsonFilesLocallyIfOutdated(['customers'],forceRefresh)
-		customers:list[Customer]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('customers'),Customer)
+		customers:List[Customer]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('customers'),Customer)
 		return customers
 
 	def getInvoices(self,forceRefresh=False):
 		refreshJsonFilesLocallyIfOutdated(['invoices'],forceRefresh)
-		invoices:list[Invoice]=getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('invoices'),Invoice)
+		invoices:List[Invoice]=getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('invoices'),Invoice)
 		return invoices
 
 	def getStockLevels(self,forceRefresh=False):
 		refreshJsonFilesLocallyIfOutdated(['stocklevels'],forceRefresh)
-		stockLevels:list[StockLevel]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('stocklevels'),StockLevel)
+		stockLevels:List[StockLevel]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('stocklevels'),StockLevel)
 		return stockLevels
 
 	def getUsers(self,forceRefresh=False):
 		refreshJsonFilesLocallyIfOutdated(['users'],forceRefresh)
-		users:list[User]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('users'),User)
+		users:List[User]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('users'),User)
 		return users
 
 	def getWarehouses(self,forceRefresh=False):
 		refreshJsonFilesLocallyIfOutdated(['warehouses'],forceRefresh)
-		warehouses:list[Warehouse]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('warehouses'),Warehouse)
+		warehouses:List[Warehouse]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('warehouses'),Warehouse)
 		return warehouses
 
 	def getPrices(self,forceRefresh=False):
 		refreshJsonFilesLocallyIfOutdated(['prices'],forceRefresh)
-		prices:list[Price]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('prices'),Price)
+		prices:List[Price]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('prices'),Price)
 		return prices
 
 

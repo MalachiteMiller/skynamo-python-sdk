@@ -1,6 +1,7 @@
 from ..shared.helpers import updateEnvironmentVariablesFromJsonConfig,getPathRelativeToSkynamoDataFolder
+from typing import List
 
-def sendEmailUsingGmailCredentialsWithFilesAttached(subject: str, body: str, recipients: list[str], files: list) -> None:
+def sendEmailUsingGmailCredentialsWithFilesAttached(subject: str, body: str, recipients: List[str], files: list) -> None:
 	import smtplib
 	from email.mime.multipart import MIMEMultipart
 	from email.mime.text import MIMEText

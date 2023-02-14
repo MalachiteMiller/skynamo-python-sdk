@@ -1,4 +1,4 @@
-from typing import Union,Literal
+from typing import Union,Literal,List,Dict
 from datetime import datetime
 from skynamo.shared.helpers import getDateTimeObjectFromSkynamoDateTimeStr
 from skynamo.models.Address import Address
@@ -11,7 +11,7 @@ class Product:
 		self.code:str=json['code']
 		self.name:str=json['name']
 		self.active:bool=json['active']
-		self.order_units:list[OrderUnit]=[]
+		self.order_units:List[OrderUnit]=[]
 		for order_unit in json['order_units']:
 			self.order_units.append(OrderUnit(order_unit['name'],order_unit['multiplier']))
 			if 'active' in order_unit:
