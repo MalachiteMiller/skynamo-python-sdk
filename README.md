@@ -13,8 +13,9 @@ This package is a python SDK for skynamo public API. It allows you to pull data 
 - Pulled data from Skynamo is cached with only the changes being pulled, to ensure the request limit of your access token is not hit
 
 ## Requirements
-- Python 3.6 or higher installed on your machine
-- pip installed on your machine
+- Python 3.6 or higher installed on your machine (https://www.python.org/downloads/)
+- pip installed on your machine (should be installed with python)
+- git installed on your machine (https://git-scm.com/downloads)
 
 ## Installation
 Run the following command in your terminal to install the skynamo python SDK:
