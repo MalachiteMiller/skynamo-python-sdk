@@ -1,8 +1,7 @@
 import ujson
 from ..models.Transaction import Transaction
 from ..models.Address import Address
-from ..models.OrderUnit import OrderUnit
-from ..shared.helpers import getDateTimeObjectFromSkynamoDateTimeStr,getStringWithOnlyValidPythonVariableCharacters
+from ..shared.helpers import getDateTimeObjectFromSkynamoDateTimeStr
 from typing import List
 
 def populateUserIdAndNameFromInteractionAndReturnFormIds(transaction:Transaction,interactionsJson:dict):
@@ -19,11 +18,9 @@ def populateCustomPropsFromFormResults(transaction:Transaction,formIds:List[int]
 		formRes=completedForms['items'][str(id)]
 		for customField in formRes['custom_fields']:
 			customFieldId=customField['id']
-			customFieldName=getStringWithOnlyValidPythonVariableCharacters(customField['name'])
 			formId=formRes['form_id']
-			customProp=f'f{formId}_c{customFieldId}_{customFieldName}'
+			customProp=getPropThatStartsWith(transaction,f'f{formId}_c{customFieldId}')
 			setTypeCorrectedCustomFieldValue(transaction,customField,customProp)
-
 
 def setTypeCorrectedCustomFieldValue(item:object,customField:dict,customProp:str):
 	## check if customProp is a valid property of item
@@ -72,8 +69,15 @@ def getListOfObjectsFromJsonFile(jsonFile:str,DataClass):
 		if 'custom_fields' in item:
 			for customField in item['custom_fields']:
 				customFieldId=customField['id']
-				customFieldName=getStringWithOnlyValidPythonVariableCharacters(customField['name'])
-				customProp=f'c{customFieldId}_{customFieldName}'
+				customProp=getPropThatStartsWith(obj,f'c_{customFieldId}')
 				setTypeCorrectedCustomFieldValue(obj,customField,customProp)
 		listOfObjects.append(obj)
 	return listOfObjects
+
+def getPropThatStartsWith(item:object,substringToStartWith):
+	customProp=''
+	for atr in item.__dict__.keys():
+		if atr.startswith(substringToStartWith):
+			customProp=atr
+			break
+	return customProp
