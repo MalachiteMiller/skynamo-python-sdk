@@ -69,7 +69,7 @@ def getListOfObjectsFromJsonFile(jsonFile:str,DataClass):
 		if 'custom_fields' in item:
 			for customField in item['custom_fields']:
 				customFieldId=customField['id']
-				customProp=getPropThatStartsWith(obj,f'c_{customFieldId}')
+				customProp=getPropThatStartsWith(obj,f'c{customFieldId}_')
 				setTypeCorrectedCustomFieldValue(obj,customField,customProp)
 		listOfObjects.append(obj)
 	return listOfObjects
