@@ -7,7 +7,7 @@ class CustomFieldArg:
 		customFieldId=customField['id']
 		customFieldName=getStringWithOnlyValidPythonVariableCharacters(customField['name'])
 		customPropName=f'{formPrefix}c{customFieldId}_{customFieldName}'
-		argType='str'
+		argType='None'
 		if customFieldType=='Text Field':
 			argType='str'
 		elif customFieldType=='Number Field':
@@ -15,17 +15,21 @@ class CustomFieldArg:
 		elif customFieldType=='Date Time Field':
 			argType='datetime'
 		elif customFieldType=='Single Value Enumeration Field':
-			commaSeparatedOptions=_getCommaSeperatedEnums(customField['enumeration_values'])
-			argType=f'Literal[{commaSeparatedOptions}]'
+			if customField['enumeration_values']!=[]:
+				commaSeparatedOptions=_getCommaSeperatedEnums(customField['enumeration_values'])
+				argType=f'Literal[{commaSeparatedOptions}]'
 		elif customFieldType=='Multi Value Enumeration Field':
-			commaSeparatedOptions=_getCommaSeperatedEnums(customField['enumeration_values'])
-			argType=f'List[Literal[{commaSeparatedOptions}]]'
+			if customField['enumeration_values']!=[]:
+				commaSeparatedOptions=_getCommaSeperatedEnums(customField['enumeration_values'])
+				argType=f'List[Literal[{commaSeparatedOptions}]]'
 		elif customFieldType=='Single Value Hierarchical Enumeration Field':
-			commaSeparatedOptions=_getCommaSeperatedEnumsForNestedEnums(customField['enumeration_values'])
-			argType=f'Literal[{commaSeparatedOptions}]'
+			if customField['enumeration_values']!=[]:
+				commaSeparatedOptions=_getCommaSeperatedEnumsForNestedEnums(customField['enumeration_values'])
+				argType=f'Literal[{commaSeparatedOptions}]'
 		elif customFieldType=='Multi Value Hierarchical Enumeration Field':
-			commaSeparatedOptions=_getCommaSeperatedEnumsForNestedEnums(customField['enumeration_values'])
-			argType=f'List[Literal[{commaSeparatedOptions}]]'
+			if customField['enumeration_values']!=[]:
+				commaSeparatedOptions=_getCommaSeperatedEnumsForNestedEnums(customField['enumeration_values'])
+				argType=f'List[Literal[{commaSeparatedOptions}]]'
 		elif customFieldType=='Address Field':
 			argType='Address'
 		elif customFieldType=='Single Value Lookup Entity Field':

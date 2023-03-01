@@ -6,6 +6,7 @@ from ..models.Invoice import Invoice
 from ..models.InvoiceItem import InvoiceItem
 from datetime import datetime
 from typing import List
+from ..models.CustomFieldsToCreate import CustomFieldsToCreate
 
 
 class WriterBase:
@@ -57,3 +58,6 @@ class WriterBase:
 		if end_time==None:
 			body['all_day']=True
 		self.writeOperations.append(WriteOperation("scheduledvisits", "post", body))
+
+	def addCustomFieldCreations(self,customFieldsToCreate:CustomFieldsToCreate):
+		self.writeOperations.append(WriteOperation("integrations", "post", {'action':'AddCustomFields','fields_to_add':customFieldsToCreate.fields_to_add},canBeCombinedWithOtherWritesInAList=False))

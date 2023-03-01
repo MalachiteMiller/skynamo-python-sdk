@@ -30,8 +30,6 @@ def makeRequest(method:Literal['get','post','patch','put'],dataType:str,dataOrPa
 	elif method=='patch':
 		return requests.patch(getApiBase()+dataType,headers=getHeaders(),json=dataOrParams).json()
 	elif method=='put':
-		print(dataType)
-		print(dataOrParams)
 		return requests.put(getApiBase()+dataType,headers=getHeaders(),json=dataOrParams).json()
 	elif method=='delete':
 		return requests.delete(getApiBase()+dataType,headers=getHeaders(),json=dataOrParams).json()

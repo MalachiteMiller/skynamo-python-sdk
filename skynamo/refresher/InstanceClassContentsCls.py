@@ -89,7 +89,10 @@ class InstanceClassContents:
 				if customFieldArg.required:
 					requiredCustomFieldsArgsAsString.append(f'{customFieldArg.argName}:{customFieldArg.argType}')
 				else:
-					optionalCustomFieldsArgsAsString.append(f'{customFieldArg.argName}:Union[{customFieldArg.argType},None]=None')
+					propType=f'Union[{customFieldArg.argType},None]'
+					if customFieldArg.argType=='None':
+						propType='None'
+					optionalCustomFieldsArgsAsString.append(f'{customFieldArg.argName}:{propType}=None')
 			placeHolder=f'##|required{modelClassName}CustomFields|##'
 			replacement=placeHolder
 			if len(requiredCustomFieldsArgsAsString)>0:
