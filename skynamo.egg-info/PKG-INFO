@@ -1,0 +1,7 @@
+Metadata-Version: 2.1
+Name: skynamo
+Version: 0.0.1
+Summary: Skynamo Public API SDK
+Author: Daniel van Niekerk
+Author-email: daniel@skynamo.com
+License-File: LICENSE.txt
