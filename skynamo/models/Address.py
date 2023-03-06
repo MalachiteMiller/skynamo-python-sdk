@@ -18,6 +18,6 @@ class Address:
 					self.state=lines[i]
 				elif i==3:
 					self.zip=lines[i]
-		
+
 	def getJsonReadyValue(self):
 		return f'{self.street}\n{self.city}\n{self.state}\n{self.zip}'

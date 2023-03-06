@@ -15,12 +15,11 @@ This package is a python SDK for skynamo public API. It allows you to pull data 
 ## Requirements
 - Python 3.6 or higher installed on your machine (https://www.python.org/downloads/)
 - pip installed on your machine (should be installed with python)
-- git installed on your machine (https://git-scm.com/downloads)
 
 ## Installation
-Run the following command in your terminal to install the skynamo python SDK:
+Run the following command in your terminal to install the latest version of the skynamo python SDK:
 ```bash
-pip install skynamo@git+https://github.com/skynamo/skynamo-python-sdk.git -I
+pip install skynamo
 ```
 
 If you are planning on sending emails you also need to install the following python packages:
@@ -88,3 +87,6 @@ If you are using an IDE like Visual Studio Code you will see all the available o
 Furthermore, after selecting the desired write method you will get a clear guide of what inputs are required/allowed and what data types they must be as shown below:
 
 ![alt text](doc/Adding%20correct%20inputs%20to%20write%20method.png)
+
+## To skynamo developers
+The first action in the buddy pipeline ensures that the most updated code is deployed accross all the integration servers. The second action publishes the package to pypi if the version in setup.py was bumped. You will see a failure at this action if the buddy pipeline ran but the version in setup.py was not bumped. This gives you control over when the package is published to pypi.

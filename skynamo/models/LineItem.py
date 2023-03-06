@@ -10,7 +10,6 @@ class LineItem:
 		self.multiplier:Union[None,float]=multiplier
 		self.tax_rate_value=tax_rate_value
 		self.tax_rate_id=tax_rate_id
-
 		self.product_name:Union[str,None]=None
 
 	def getJsonReadyValue(self):
