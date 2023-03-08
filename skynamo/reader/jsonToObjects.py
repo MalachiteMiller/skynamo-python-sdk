@@ -1,4 +1,4 @@
-import ujson
+import json
 from ..models.Transaction import Transaction
 from ..models.Address import Address
 from ..shared.helpers import getDateTimeObjectFromSkynamoDateTimeStr
@@ -58,7 +58,7 @@ def getListOfObjectsFromJsonFile(jsonFile:str,DataClass):
 		formIdToFilterOn=int(DataClass.__name__.split('_f')[-1])
 	jsonDict={}
 	with open(jsonFile, "r") as read_file:
-		jsonDict=ujson.load(read_file)
+		jsonDict=json.load(read_file)
 	listOfObjects=[]
 	for itemId in jsonDict['items']:
 		item=jsonDict['items'][itemId]

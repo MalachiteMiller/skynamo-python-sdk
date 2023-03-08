@@ -10,7 +10,7 @@ from skynamo.models.Price import Price
 from skynamo.models.StockLevel import StockLevel
 from skynamo.reader.jsonToObjects import getListOfObjectsFromJsonFile,populateCustomPropsFromFormResults,populateUserIdAndNameFromInteractionAndReturnFormIds
 from skynamo.reader.sync import refreshJsonFilesLocallyIfOutdated,getSynchedDataTypeFileLocation
-import ujson
+import json
 from typing import List,Dict
 ##|customImports|##
 
@@ -18,11 +18,11 @@ def _getTransactions(transactionClass,forceRefresh=False):
 	refreshJsonFilesLocallyIfOutdated([f'{transactionClass.__name__.lower()}s','completedforms','interactions'])#type:ignore
 	interactionsJson={}
 	with open(getSynchedDataTypeFileLocation('interactions'), "r") as read_file:
-		interactionsJson=ujson.load(read_file)
+		interactionsJson=json.load(read_file)
 	refreshJsonFilesLocallyIfOutdated(['orders','completedforms','interactions'],forceRefresh)
 	completedForms={}
 	with open(getSynchedDataTypeFileLocation('completedforms'), "r") as read_file:
-		completedForms=ujson.load(read_file)
+		completedForms=json.load(read_file)
 	transactions=getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation(f'{transactionClass.__name__.lower()}s'),transactionClass)
 	for i,transaction in enumerate(transactions):
 		formIds=populateUserIdAndNameFromInteractionAndReturnFormIds(transaction,interactionsJson)

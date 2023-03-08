@@ -1,7 +1,7 @@
 from ..shared.helpers import ensureFolderExists
 from typing import Union,Literal,List,Dict
 from ..shared.api import makeRequest
-import ujson,math,threading
+import json,math,threading
 
 def AddPageResultToExistingItemsAndReturnTotalItems(dataType:str,existingItems:Dict,pageNr:int,pageSize:int,filters:str,flags:List[str]=[]):
 	print(f'Pagenr: {pageNr}')
@@ -53,7 +53,7 @@ def SyncDataTypeFromSkynamoToLocalJsonFiles(dataType,fullSync=False,syncFromLast
 	if not(fullSync):
 		try:
 			with open(getSynchedDataTypeFileLocation(dataType), "r") as read_file:
-				existingData=ujson.load(read_file)
+				existingData=json.load(read_file)
 		except Exception as e:
 			pass
 	pageNr=1
@@ -88,7 +88,7 @@ def SyncDataTypeFromSkynamoToLocalJsonFiles(dataType,fullSync=False,syncFromLast
 	existingData['lastPageNr']=pageNr-1
 	with open(getSynchedDataTypeFileLocation(dataType), "w") as write_file:
 		print(f'updating cache for {dataType}')
-		ujson.dump(existingData, write_file)
+		json.dump(existingData, write_file)
 	if exceptionThatOccured!=None:
 		raise exceptionThatOccured
 

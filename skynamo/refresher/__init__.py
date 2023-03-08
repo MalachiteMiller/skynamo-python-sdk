@@ -1,6 +1,6 @@
 import os
 from ..reader.sync import SyncDataTypesFromSkynamo,getSynchedDataTypeFileLocation
-import ujson
+import json
 from .InstanceClassContentsCls import InstanceClassContents
 
 def deleteExistingCodeAndEnsureRequiredFoldersExist():
@@ -26,7 +26,7 @@ def refreshCustomFormsAndFields():
 	SyncDataTypesFromSkynamo(['formdefinitions'])
 	formsJson={}
 	with open(getSynchedDataTypeFileLocation('formdefinitions'), "r") as read_file:
-		formsJson=ujson.load(read_file)
+		formsJson=json.load(read_file)
 	instanceClassContents=InstanceClassContents()
 	for formDefId in formsJson['items']:
 		formDef=formsJson['items'][formDefId]
