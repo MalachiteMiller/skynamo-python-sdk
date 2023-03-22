@@ -7,6 +7,7 @@ from ..models.InvoiceItem import InvoiceItem
 from datetime import datetime
 from typing import List
 from ..models.CustomFieldsToCreate import CustomFieldsToCreate
+from ..models.Warehouse import Warehouse
 
 
 class WriterBase:
@@ -62,10 +63,12 @@ class WriterBase:
 	def addCustomFieldCreations(self,customFieldsToCreate:CustomFieldsToCreate):
 		self.writeOperations.append(WriteOperation("integrations", "post", {'action':'AddCustomFields','fields_to_add':customFieldsToCreate.fields_to_add},canBeCombinedWithOtherWritesInAList=False))
 
-	def addWarehouseCreate(self,name:str,order_email:str,credit_request_email:str,quote_email:str,active:bool=True):
+	def addWarehouseCreate(self,name:str,order_email:str='',credit_request_email:str='',quote_email:str='',active:bool=True):
 		body=getBodyForWriteOperation(locals())
 		self.writeOperations.append(WriteOperation("warehouses", "post", body))
 
-	def addWarehouseUpdate(self,id:int,name:str,order_email:str,credit_request_email:str,quote_email:str,active:bool=True):
-		body=getBodyForWriteOperation(locals())
+	def addWarehouseUpdate(self,warehouse:Warehouse,fieldsToUpdate:List[Literal['name','order_email','credit_request_email','quote_email','active']]):
+		body={'id':warehouse.id}
+		for field in fieldsToUpdate:
+			body[field]=getattr(warehouse,field)
 		self.writeOperations.append(WriteOperation("warehouses", "patch", body))
