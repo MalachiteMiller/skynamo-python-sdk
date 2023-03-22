@@ -61,3 +61,11 @@ class WriterBase:
 
 	def addCustomFieldCreations(self,customFieldsToCreate:CustomFieldsToCreate):
 		self.writeOperations.append(WriteOperation("integrations", "post", {'action':'AddCustomFields','fields_to_add':customFieldsToCreate.fields_to_add},canBeCombinedWithOtherWritesInAList=False))
+
+	def addWarehouseCreate(self,name:str,order_email:str,credit_request_email:str,quote_email:str,active:bool=True):
+		body=getBodyForWriteOperation(locals())
+		self.writeOperations.append(WriteOperation("warehouses", "post", body))
+
+	def addWarehouseUpdate(self,id:int,name:str,order_email:str,credit_request_email:str,quote_email:str,active:bool=True):
+		body=getBodyForWriteOperation(locals())
+		self.writeOperations.append(WriteOperation("warehouses", "patch", body))
