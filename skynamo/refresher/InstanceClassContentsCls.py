@@ -72,7 +72,10 @@ class InstanceClassContents:
 		for customFieldArg in customFieldArgs:
 			modelClassString+=f'\t\tself.{customFieldArg.argName}:Union[{customFieldArg.argType},None]=None\r'
 			customFieldArgsWithPropTypes[customFieldArg.argName]=customFieldArg.argType
-		self.modelNameToCustomFieldPropTypes[modelClassName]=customFieldArgsWithPropTypes
+		if modelClassName not in self.modelNameToCustomFieldPropTypes:
+			self.modelNameToCustomFieldPropTypes[modelClassName]={}
+		for key in customFieldArgsWithPropTypes:
+			self.modelNameToCustomFieldPropTypes[modelClassName][key]=customFieldArgsWithPropTypes[key]
 		self.__updateClassContents(modelClassName,modelClassString)
 
 	def __updateClassContents(self,modelClassName:str,modelClassString:str):
