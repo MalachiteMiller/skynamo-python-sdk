@@ -99,7 +99,10 @@ class InstanceClassContents:
 				replacement=','+replacement
 			self.writerContent=self.writerContent.replace(placeHolder,','.join(requiredCustomFieldsArgsAsString)+replacement)
 			placeHolder=f'##|optional{modelClassName}CustomFields|##'
-			self.writerContent=self.writerContent.replace(placeHolder,','.join(optionalCustomFieldsArgsAsString)+placeHolder)
+			replacement=placeHolder
+			if len(optionalCustomFieldsArgsAsString)>0:
+				replacement=','+replacement
+			self.writerContent=self.writerContent.replace(placeHolder,','.join(optionalCustomFieldsArgsAsString)+replacement)
 
 	def __addCustomFormGetMethodsToReader(self,modelClassName:str):
 		if isCustomForm(modelClassName):
