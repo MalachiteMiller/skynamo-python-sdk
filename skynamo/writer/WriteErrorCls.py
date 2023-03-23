@@ -1,7 +1,7 @@
-from typing import Literal,List
+from typing import Literal,List,Union
 class WriteError:
-	def __init__(self,dataType:str,httpMethod:Literal['post','patch','put'],itemOrId:list,error:List[str]):
+	def __init__(self,dataType:str,httpMethod:str,body:Union[list,dict,str],error:List[str]):
 		self.dataType=dataType
-		self.itemOrId=itemOrId
+		self.body=body
 		self.httpMethod=httpMethod
 		self.error=error

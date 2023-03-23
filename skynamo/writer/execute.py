@@ -54,4 +54,4 @@ def __makeWriteRequest(writeOperations:Union[WriteOperation,List[WriteOperation]
 	results=makeRequest(httpMethod,dataType,body)#type:ignore
 	if 'errors' in results:
 		for error in results['errors']:
-			errors.append(WriteError(writeOperations[0].dataType,writeOperations[0].httpMethod,writeItems[error['index']],error['detail'])) #type:ignore
+			errors.append(WriteError(dataType,httpMethod,body,error['detail']))
