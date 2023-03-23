@@ -68,7 +68,7 @@ class WriterBase:
 		self.writeOperations.append(WriteOperation("warehouses", "post", body))
 
 	def addWarehouseUpdate(self,warehouse:Warehouse,fieldsToUpdate:List[Literal['name','order_email','credit_request_email','quote_email','active']]):
-		body={'id':warehouse.id}
+		body={'id':warehouse.id,'name':warehouse.name}
 		for field in fieldsToUpdate:
 			body[field]=getattr(warehouse,field)
 		self.writeOperations.append(WriteOperation("warehouses", "patch", body))
