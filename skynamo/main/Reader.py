@@ -82,7 +82,7 @@ class Reader:
 	
 	def getTaxRates(self,forceRefresh=False):
 		refreshJsonFilesLocallyIfOutdated(['taxrates'],forceRefresh)
-		taxRates:List[Price]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('taxrates'),TaxRate)
+		taxRates:List[TaxRate]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('taxrates'),TaxRate)
 		return taxRates
 
 
