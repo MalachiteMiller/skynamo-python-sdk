@@ -11,8 +11,9 @@ class TestWarehouseCreationAndUpdates(unittest.TestCase):
 		reader=Reader()
 		##act create
 		writer.addWarehouseCreate(warehouseName,"","","")
-		writer.apply()
+		errors=writer.apply()
 		##assert create
+		self.assertEqual(len(errors),0)
 		warehouses=reader.getWarehouses(forceRefresh=True)
 		warehouseNamesToWarehouses={w.name:w for w in warehouses}
 		self.assertIn(warehouseName,warehouseNamesToWarehouses)
@@ -20,8 +21,9 @@ class TestWarehouseCreationAndUpdates(unittest.TestCase):
 		warehouseToUpdate=warehouseNamesToWarehouses[warehouseName]
 		warehouseToUpdate.name=warehouseName+"Updated"
 		writer.addWarehouseUpdate(warehouseToUpdate,['name'])
-		writer.apply()
+		errors=writer.apply()
 		##assert update
+		self.assertEqual(len(errors),0)
 		warehouses=reader.getWarehouses(forceRefresh=True)
 		warehouseNamesToIds={w.name:w.id for w in warehouses}
 		self.assertIn(warehouseName+"Updated",warehouseNamesToIds)

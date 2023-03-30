@@ -8,6 +8,7 @@ from datetime import datetime
 from typing import List
 from ..models.CustomFieldsToCreate import CustomFieldsToCreate
 from ..models.Warehouse import Warehouse
+from ..models.TaxRate import TaxRate
 
 
 class WriterBase:
@@ -62,7 +63,7 @@ class WriterBase:
 
 	def addCustomFieldCreations(self,customFieldsToCreate:CustomFieldsToCreate):
 		self.writeOperations.append(WriteOperation("integrations", "post", {'action':'AddCustomFields','fields_to_add':customFieldsToCreate.fields_to_add},canBeCombinedWithOtherWritesInAList=False))
-
+	## warehouses
 	def addWarehouseCreate(self,name:str,order_email:str='',credit_request_email:str='',quote_email:str='',active:bool=True):
 		body=getBodyForWriteOperation(locals())
 		self.writeOperations.append(WriteOperation("warehouses", "post", body))
@@ -72,3 +73,14 @@ class WriterBase:
 		for field in fieldsToUpdate:
 			body[field]=getattr(warehouse,field)
 		self.writeOperations.append(WriteOperation("warehouses", "patch", body))
+	## taxes
+	def addTaxRateCreate(self,name:str,rate:float,active:bool=True):
+		if rate<0 or rate>100:
+			raise ValueError('rate must be between 0 and 100')
+		body=getBodyForWriteOperation(locals())
+		self.writeOperations.append(WriteOperation("taxrates", "post", body))
+	def addTaxRateUpdate(self,taxrate:TaxRate,fieldsToUpdate:List[Literal['name','rate','active']]):
+		body={'id':taxrate.id,'name':taxrate.name}
+		for field in fieldsToUpdate:
+			body[field]=getattr(taxrate,field)
+		self.writeOperations.append(WriteOperation("taxrates", "patch", body))

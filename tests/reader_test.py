@@ -47,3 +47,7 @@ class TestReader(unittest.TestCase):
 		##update according to instance being tested:
 		customFormResults=reader.getAll_custom_field_types_f39()
 		self.assertNotEqual(len(customFormResults),0)
+	def test_getTaxRates(self):
+		reader=Reader()
+		taxRates=reader.getTaxRates()
+		self.assertNotEqual(len(taxRates),0)
