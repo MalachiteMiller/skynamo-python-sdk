@@ -9,6 +9,7 @@ from skynamo.models.Warehouse import Warehouse
 from skynamo.models.TaxRate import TaxRate
 from skynamo.models.Price import Price
 from skynamo.models.StockLevel import StockLevel
+from skynamo.models.PriceList import PriceList
 from skynamo.reader.jsonToObjects import getListOfObjectsFromJsonFile,populateCustomPropsFromFormResults,populateUserIdAndNameFromInteractionAndReturnFormIds
 from skynamo.reader.sync import refreshJsonFilesLocallyIfOutdated,getSynchedDataTypeFileLocation
 import json
@@ -84,5 +85,9 @@ class Reader:
 		refreshJsonFilesLocallyIfOutdated(['taxrates'],forceRefresh)
 		taxRates:List[TaxRate]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('taxrates'),TaxRate)
 		return taxRates
-
+	
+	def getPriceLists(self,forceRefresh=False):
+		refreshJsonFilesLocallyIfOutdated(['pricelists'],forceRefresh)
+		priceLists:List[PriceList]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('pricelists'),PriceList)
+		return priceLists
 

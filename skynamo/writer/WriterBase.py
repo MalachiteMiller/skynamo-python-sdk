@@ -9,6 +9,7 @@ from typing import List
 from ..models.CustomFieldsToCreate import CustomFieldsToCreate
 from ..models.Warehouse import Warehouse
 from ..models.TaxRate import TaxRate
+from ..models.PriceList import PriceList
 
 
 class WriterBase:
@@ -84,3 +85,12 @@ class WriterBase:
 		for field in fieldsToUpdate:
 			body[field]=getattr(taxrate,field)
 		self.writeOperations.append(WriteOperation("taxrates", "patch", body))
+	## pricelists
+	def addPriceListCreate(self,name:str,prices_include_vat:bool,active:bool=True):
+		body=getBodyForWriteOperation(locals())
+		self.writeOperations.append(WriteOperation("pricelists", "post", body))
+	def addPriceListUpdate(self,pricelist:PriceList,fieldsToUpdate:List[Literal['name','prices_include_vat','active']]):
+		body={'id':pricelist.id,'name':pricelist.name}
+		for field in fieldsToUpdate:
+			body[field]=getattr(pricelist,field)
+		self.writeOperations.append(WriteOperation("pricelists", "patch", body))
