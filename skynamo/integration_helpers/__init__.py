@@ -1,1 +1,1 @@
-from .syncTaxRatesAndWarehouses import syncErpTaxRatesWithSkynamo, syncErpWarehousesWithSkynamo
+from .syncTaxRatesAndWarehouses import syncTaxRatesWithSkynamoAndReturnNameLookup, syncWarehousesWithSkynamoAndReturnNameLookup

@@ -1,10 +1,11 @@
 import unittest
-from skynamo.integration_helpers import syncErpTaxRatesWithSkynamo, syncErpWarehousesWithSkynamo
+from skynamo.integration_helpers import syncTaxRatesWithSkynamoAndReturnNameLookup, syncWarehousesWithSkynamoAndReturnNameLookup
 from skynamo.main.Reader import Reader
 
 class TestSyncTaxRatesAndWarehouses(unittest.TestCase):
 	def test_syncErpTaxRatesWithSkynamo(self):
-		syncErpTaxRatesWithSkynamo([{'id':'1','name':'15%', 'rate':'15', 'deleted_at':''},{'id':'2','name':'20%', 'rate':'20', 'deleted_at':''},{'id':'3','name':'25%', 'rate':'25', 'deleted_at':''}], 'id', 'name', 'rate')
+		lookup=syncTaxRatesWithSkynamoAndReturnNameLookup([{'id':'1','name':'15%', 'rate':'15', 'deleted_at':''},{'id':'2','name':'20%', 'rate':'20', 'deleted_at':''},{'id':'3','name':'25%', 'rate':'25', 'deleted_at':''}], 'id', 'name', 'rate')
+		self.assertEqual(lookup,{'1':'15% (1)','2':'20% (2)','3':'25% (3)'})
 		reader=Reader()
 		taxRates=reader.getTaxRates(forceRefresh=True)
 		expectedTaxRates={'15% (1)':15,'20% (2)':20,'25% (3)':25}
@@ -15,7 +16,8 @@ class TestSyncTaxRatesAndWarehouses(unittest.TestCase):
 				del expectedTaxRates[taxR.name]
 		self.assertEqual(len(expectedTaxRates),0)
 		## act update
-		syncErpTaxRatesWithSkynamo([{'id':'1','name':'15%', 'rate':'15', 'deleted_at':''},{'id':'2','name':'18%', 'rate':'18', 'deleted_at':''},{'id':'3','name':'25%', 'rate':'25', 'deleted_at':'asdf'}], 'id', 'name', 'rate')
+		lookup=syncTaxRatesWithSkynamoAndReturnNameLookup([{'id':'1','name':'15%', 'rate':'15', 'deleted_at':''},{'id':'2','name':'18%', 'rate':'18', 'deleted_at':''},{'id':'3','name':'25%', 'rate':'25', 'deleted_at':'asdf'}], 'id', 'name', 'rate')
+		self.assertEqual(lookup,{'1':'15% (1)','2':'18% (2)','3':'25% (3)'})
 		nameThatShouldNotExist='20% (2)'
 		taxRates=reader.getTaxRates(forceRefresh=True)
 		expectedTaxRates={'15% (1)':15,'18% (2)':18,'25% (3)':25}
@@ -32,7 +34,8 @@ class TestSyncTaxRatesAndWarehouses(unittest.TestCase):
 				self.assertEqual(False,True)
 		self.assertEqual(len(expectedTaxRates),0)
 	def test_syncErpWarehousesWithSkynamo(self):
-		syncErpWarehousesWithSkynamo([{'id':'1','name':'Warehouse 1', 'deleted_at':''},{'id':'2','name':'Warehouse 2', 'deleted_at':''},{'id':'3','name':'Warehouse 3', 'deleted_at':''}], 'id', 'name')
+		lookup=syncWarehousesWithSkynamoAndReturnNameLookup([{'id':'1','name':'Warehouse 1', 'deleted_at':''},{'id':'2','name':'Warehouse 2', 'deleted_at':''},{'id':'3','name':'Warehouse 3', 'deleted_at':''}], 'id', 'name')
+		self.assertEqual(lookup,{'1':'Warehouse 1 (1)','2':'Warehouse 2 (2)','3':'Warehouse 3 (3)'})
 		reader=Reader()
 		warehouses=reader.getWarehouses(forceRefresh=True)
 		expectedWarehouses=['Warehouse 1 (1)','Warehouse 2 (2)','Warehouse 3 (3)']
@@ -42,7 +45,8 @@ class TestSyncTaxRatesAndWarehouses(unittest.TestCase):
 				del expectedWarehouses[expectedWarehouses.index(warehouse.name)]
 		self.assertEqual(len(expectedWarehouses),0)
 		## act update
-		syncErpWarehousesWithSkynamo([{'id':'1','name':'Warehouse 1 v2', 'deleted_at':''},{'id':'2','name':'Warehouse 2', 'deleted_at':''},{'id':'3','name':'Warehouse 3', 'deleted_at':'asdf'}], 'id', 'name')
+		lookup=syncWarehousesWithSkynamoAndReturnNameLookup([{'id':'1','name':'Warehouse 1 v2', 'deleted_at':''},{'id':'2','name':'Warehouse 2', 'deleted_at':''},{'id':'3','name':'Warehouse 3', 'deleted_at':'asdf'}], 'id', 'name')
+		self.assertEqual(lookup,{'1':'Warehouse 1 v2 (1)','2':'Warehouse 2 (2)','3':'Warehouse 3 (3)'})
 		nameThatShouldNotExist='Warehouse 1 (1)'
 		warehouses=reader.getWarehouses(forceRefresh=True)
 		expectedWarehouses=['Warehouse 1 v2 (1)','Warehouse 2 (2)','Warehouse 3 (3)']

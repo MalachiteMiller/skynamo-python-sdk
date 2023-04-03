@@ -4,14 +4,16 @@ from skynamo.main.Writer import Writer
 from skynamo.models.TaxRate import TaxRate
 from skynamo.models.Warehouse import Warehouse
 
-def syncErpTaxRatesWithSkynamo(erpTaxRates:List[Dict[str,Any]],taxIdField:str,taxNameField:str,rateField:str,taxRateIsActiveField:str='deleted_at',valueInTaxRateIsActiveFieldIndicatingActiveTaxRate:Any='',multiplyRateBy=1):
+def syncTaxRatesWithSkynamoAndReturnNameLookup(taxRates:List[Dict[str,Any]],idField:str,nameField:str,rateField:str,isActiveField:str='deleted_at',isActiveValue:Any='',multiplyRateBy=1):
 	erpTaxRateIdToSkynamoTaxRates=getDictOfErpTaxRateIdToSkynamoTaxRate()
 	writer=Writer()
-	for erpTaxRate in erpTaxRates:
-		erpTaxRateId=erpTaxRate[taxIdField]
-		name=erpTaxRate[taxNameField]+' ('+erpTaxRateId+')'
+	nameLookup={}
+	for erpTaxRate in taxRates:
+		erpTaxRateId=erpTaxRate[idField]
+		name=erpTaxRate[nameField]+' ('+erpTaxRateId+')'
+		nameLookup[erpTaxRateId]=name
 		newRate=float(erpTaxRate[rateField])*multiplyRateBy
-		isActiveInErp=erpTaxRate[taxRateIsActiveField]==valueInTaxRateIsActiveFieldIndicatingActiveTaxRate
+		isActiveInErp=erpTaxRate[isActiveField]==isActiveValue
 		if erpTaxRateId not in erpTaxRateIdToSkynamoTaxRates and isActiveInErp:# if tax rate is not in skynamo and is active in erp
 			writer.addTaxRateCreate(name,newRate)
 		else:# if tax rate is in skynamo
@@ -22,15 +24,19 @@ def syncErpTaxRatesWithSkynamo(erpTaxRates:List[Dict[str,Any]],taxIdField:str,ta
 				skynamoTaxRate.active=isActiveInErp
 				writer.addTaxRateUpdate(skynamoTaxRate,['name','rate','active'])
 	errors=writer.apply()
-	return errors
+	if errors!=[]:
+		raise Exception('Error syncing tax rates with Skynamo: '+str(errors))
+	return nameLookup
 
-def syncErpWarehousesWithSkynamo(erpWarehouses:List[Dict[str,Any]],warehouseIdField:str,warehouseNameField:str,warehouseIsActiveField:str='deleted_at',valueInWarehouseIsActiveFieldIndicatingActiveWarehouse:Any=''):
+def syncWarehousesWithSkynamoAndReturnNameLookup(erpWarehouses:List[Dict[str,Any]],idField:str,nameField:str,isActiveField:str='deleted_at',isActiveValue:Any=''):
 	erpWarehouseIdToSkynamoWarehouse=getDictOfErpWarehouseIdToSkynamoWarehouse()
 	writer=Writer()
+	nameLookup={}
 	for erpWarehouse in erpWarehouses:
-		erpWarehouseId=erpWarehouse[warehouseIdField]
-		name=erpWarehouse[warehouseNameField]+' ('+erpWarehouseId+')'
-		isActiveInErp=erpWarehouse[warehouseIsActiveField]==valueInWarehouseIsActiveFieldIndicatingActiveWarehouse
+		erpWarehouseId=erpWarehouse[idField]
+		name=erpWarehouse[nameField]+' ('+erpWarehouseId+')'
+		nameLookup[erpWarehouseId]=name
+		isActiveInErp=erpWarehouse[isActiveField]==isActiveValue
 		if erpWarehouseId not in erpWarehouseIdToSkynamoWarehouse and isActiveInErp:# if warehouse is not in skynamo and is active in erp
 			writer.addWarehouseCreate(name)
 		else:
@@ -40,7 +46,9 @@ def syncErpWarehousesWithSkynamo(erpWarehouses:List[Dict[str,Any]],warehouseIdFi
 				skynamoWarehouse.active=isActiveInErp
 				writer.addWarehouseUpdate(skynamoWarehouse,['name','active'])
 	errors=writer.apply()
-	return errors
+	if errors!=[]:
+		raise Exception('Error syncing warehouses with Skynamo: '+str(errors))
+	return nameLookup
 
 
 def getDictOfErpTaxRateIdToSkynamoTaxRate():
