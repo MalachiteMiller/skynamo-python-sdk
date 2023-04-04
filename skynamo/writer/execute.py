@@ -54,4 +54,9 @@ def __makeWriteRequest(writeOperations:Union[WriteOperation,List[WriteOperation]
 	results=makeRequest(httpMethod,dataType,body)#type:ignore
 	if 'errors' in results:
 		for error in results['errors']:
-			errors.append(WriteError(dataType,httpMethod,body,error['detail']))
+			details=str(error)
+			if 'detail' in error:
+				details=error['detail']
+			if not isinstance(details,list):
+				details=[details]
+			errors.append(WriteError(dataType,httpMethod,body,details))
