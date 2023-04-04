@@ -14,8 +14,9 @@ def syncTaxRatesWithSkynamoAndReturnNameLookup(taxRates:List[Dict[str,Any]],idFi
 		nameLookup[erpTaxRateId]=name
 		newRate=float(erpTaxRate[rateField])*multiplyRateBy
 		isActiveInErp=erpTaxRate[isActiveField]==isActiveValue
-		if erpTaxRateId not in erpTaxRateIdToSkynamoTaxRates and isActiveInErp:# if tax rate is not in skynamo and is active in erp
-			writer.addTaxRateCreate(name,newRate)
+		if erpTaxRateId not in erpTaxRateIdToSkynamoTaxRates:# if tax rate is not in skynamo and is active in erp
+			if isActiveInErp:
+				writer.addTaxRateCreate(name,newRate)
 		else:# if tax rate is in skynamo
 			skynamoTaxRate=erpTaxRateIdToSkynamoTaxRates[erpTaxRateId]
 			if name!=skynamoTaxRate.name or newRate!=skynamoTaxRate.rate or isActiveInErp!=skynamoTaxRate.active:
@@ -37,8 +38,9 @@ def syncWarehousesWithSkynamoAndReturnNameLookup(erpWarehouses:List[Dict[str,Any
 		name=erpWarehouse[nameField]+' ('+erpWarehouseId+')'
 		nameLookup[erpWarehouseId]=name
 		isActiveInErp=erpWarehouse[isActiveField]==isActiveValue
-		if erpWarehouseId not in erpWarehouseIdToSkynamoWarehouse and isActiveInErp:# if warehouse is not in skynamo and is active in erp
-			writer.addWarehouseCreate(name)
+		if erpWarehouseId not in erpWarehouseIdToSkynamoWarehouse:# if warehouse is not in skynamo and is active in erp
+			if isActiveInErp:
+				writer.addWarehouseCreate(name)
 		else:
 			skynamoWarehouse=erpWarehouseIdToSkynamoWarehouse[erpWarehouseId]
 			if name!=skynamoWarehouse.name or isActiveInErp!=skynamoWarehouse.active:
