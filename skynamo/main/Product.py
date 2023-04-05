@@ -13,7 +13,10 @@ class Product:
 		self.active:bool=json['active']
 		self.order_units:List[OrderUnit]=[]
 		for order_unit in json['order_units']:
-			self.order_units.append(OrderUnit(order_unit['name'],order_unit['multiplier']))
+			id=None
+			if 'id' in order_unit:
+				id=order_unit['id']
+			self.order_units.append(OrderUnit(order_unit['name'],order_unit['multiplier'],id=id))
 			if 'active' in order_unit:
 				self.order_units[-1].active=order_unit['active']
 		self.last_modified_time:datetime=getDateTimeObjectFromSkynamoDateTimeStr(json['last_modified_time'])

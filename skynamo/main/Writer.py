@@ -21,11 +21,13 @@ class Writer(WriterBase):
 		self.writeOperations=[]
 	## add update operations dependent on custom fields
 	def addCustomerUpdate(self,customer:Customer,fieldsToUpdate:List[str]):
+		fieldsToUpdate.append('active')
 		self.writeOperations.append(getWriteOperationToUpdateObject(customer,fieldsToUpdate))
 	def addCustomerReplace(self,customer:Customer):
 		self.writeOperations.append(getWriteOperationToPutObject(customer))
 	
 	def addProductUpdate(self,product:Product,fieldsToUpdate:List[str]):
+		fieldsToUpdate.append('active')
 		self.writeOperations.append(getWriteOperationToUpdateObject(product,fieldsToUpdate))
 	def addProductReplace(self,product:Product):
 		self.writeOperations.append(getWriteOperationToPutObject(product))
