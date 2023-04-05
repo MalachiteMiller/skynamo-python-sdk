@@ -21,7 +21,6 @@ def _getTransactions(transactionClass,forceRefresh=False):
 	interactionsJson={}
 	with open(getSynchedDataTypeFileLocation('interactions'), "r") as read_file:
 		interactionsJson=json.load(read_file)
-	refreshJsonFilesLocallyIfOutdated(['orders','completedforms','interactions'],forceRefresh)
 	completedForms={}
 	with open(getSynchedDataTypeFileLocation('completedforms'), "r") as read_file:
 		completedForms=json.load(read_file)
