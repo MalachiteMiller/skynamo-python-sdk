@@ -26,10 +26,15 @@ def _getTransactions(transactionClass,forceRefresh=False):
 	with open(getSynchedDataTypeFileLocation('completedforms'), "r") as read_file:
 		completedForms=json.load(read_file)
 	transactions=getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation(f'{transactionClass.__name__.lower()}s'),transactionClass)
+	populatedTransactions=[]
 	for i,transaction in enumerate(transactions):
 		formIds=populateUserIdAndNameFromInteractionAndReturnFormIds(transaction,interactionsJson)
-		populateCustomPropsFromFormResults(transaction,formIds,completedForms)
-	return transactions
+		try:
+			populateCustomPropsFromFormResults(transaction,formIds,completedForms)
+			populatedTransactions.append(transaction)
+		except Exception as e:
+			print(f'Warning: Error populating custom props for {transactionClass.__name__} {i}: {e}. Leaving out of transactions list since it might be because since the last sync new orders have come through but not yet their associated form results.')
+	return populatedTransactions
 
 class Reader:
 	def __init__(self):
