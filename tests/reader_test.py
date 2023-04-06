@@ -51,3 +51,7 @@ class TestReader(unittest.TestCase):
 		reader=Reader()
 		taxRates=reader.getTaxRates()
 		self.assertNotEqual(len(taxRates),0)
+	def test_getVisitFrequencies(self):
+		reader=Reader()
+		visitFrequencies=reader.getVisitFrequencies(forceRefresh=True)
+		self.assertNotEqual(len(visitFrequencies),0)

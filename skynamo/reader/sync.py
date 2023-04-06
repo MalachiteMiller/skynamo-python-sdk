@@ -92,9 +92,9 @@ def SyncDataTypeFromSkynamoToLocalJsonFiles(dataType,fullSync=False,syncFromLast
 	if exceptionThatOccured!=None:
 		raise exceptionThatOccured
 
-def SyncDataTypesFromSkynamo(dataTypes:List[Literal['pricelists','taxrates','prices','warehouses','completedforms','quotes','orders','creditrequests','users','stocklevels','customers','products','invoices','formdefinitions','interactions']]=['completedforms','quotes','orders','creditrequests','users','stocklevels','customers','products','invoices','interactions']):
+def SyncDataTypesFromSkynamo(dataTypes:List[Literal['visitfrequencies','pricelists','taxrates','prices','warehouses','completedforms','quotes','orders','creditrequests','users','stocklevels','customers','products','invoices','formdefinitions','interactions']]=['completedforms','quotes','orders','creditrequests','users','stocklevels','customers','products','invoices','interactions']):
 	fullSyncDataTypes=['users','stocklevels','formdefinitions','taxrates','warehouses','pricelists']
-	versionedDataTypes=['customers','products','invoices']
+	versionedDataTypes=['customers','products','invoices','visitfrequencies']
 	dataTypeFlags={'formdefinitions':['show_enums'],'orders':['show_nulls'],'creditrequests':['show_nulls'],'quotes':['show_nulls']}
 	flags=[]
 	for dataType in dataTypes:
@@ -108,7 +108,7 @@ def SyncDataTypesFromSkynamo(dataTypes:List[Literal['pricelists','taxrates','pri
 			flags=dataTypeFlags[dataType]
 		SyncDataTypeFromSkynamoToLocalJsonFiles(dataType,fullSync,syncFromLastRowVersion,flags)
 
-def refreshJsonFilesLocallyIfOutdated(dataTypes:List[Literal['pricelists','taxrates','prices','warehouses','completedforms','quotes','orders','creditrequests','users','stocklevels','customers','products','invoices','formdefinitions','interactions']],forceRefresh:bool=False):
+def refreshJsonFilesLocallyIfOutdated(dataTypes:List[Literal['visitfrequencies','pricelists','taxrates','prices','warehouses','completedforms','quotes','orders','creditrequests','users','stocklevels','customers','products','invoices','formdefinitions','interactions']],forceRefresh:bool=False):
 	import os
 	import time
 	nrSecondsToWaitBeforeRefreshing=300

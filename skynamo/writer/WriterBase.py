@@ -10,6 +10,7 @@ from ..models.CustomFieldsToCreate import CustomFieldsToCreate
 from ..models.Warehouse import Warehouse
 from ..models.TaxRate import TaxRate
 from ..models.PriceList import PriceList
+from ..models.VisitFrequency import VisitFrequency
 
 
 class WriterBase:
@@ -94,3 +95,26 @@ class WriterBase:
 		for field in fieldsToUpdate:
 			body[field]=getattr(pricelist,field)
 		self.writeOperations.append(WriteOperation("pricelists", "patch", body))
+	## visitfrequencies
+	def addVisitFrequencyCreate(self,customer_id:int,user_name:str,numberOfCyclesPerPeriod:int,numberOfVisitsRequiredPerCycle:int,period:Literal['Week','Month','Year']):
+		body=getBodyForWriteOperation(locals())
+		## replace numberOfCyclesPerPeriod with cycle and replace numberOfVisitsRequiredPerCycle with frequency
+		body['cycle']=body['numberOfCyclesPerPeriod']
+		body['frequency']=body['numberOfVisitsRequiredPerCycle']
+		del body['numberOfCyclesPerPeriod']
+		del body['numberOfVisitsRequiredPerCycle']
+		self.writeOperations.append(WriteOperation("visitfrequencies", "post", body))
+	
+	def addVisitFrequencyUpdate(self,visitFrequency:VisitFrequency,fieldsToUpdate:List[Literal['customer_id','user_name','numberOfCyclesPerPeriod','numberOfVisitsRequiredPerCycle','period']]):
+		body={'id':visitFrequency.id}
+		for field in fieldsToUpdate:
+			body[field]=getattr(visitFrequency,field)
+		## replace numberOfCyclesPerPeriod with cycle and replace numberOfVisitsRequiredPerCycle with frequency
+		if 'numberOfCyclesPerPeriod' in body:
+			body['cycle']=body['numberOfCyclesPerPeriod']
+			del body['numberOfCyclesPerPeriod']
+		if 'numberOfVisitsRequiredPerCycle' in body:
+			body['frequency']=body['numberOfVisitsRequiredPerCycle']
+			del body['numberOfVisitsRequiredPerCycle']
+		self.writeOperations.append(WriteOperation("visitfrequencies", "patch", body))
+
