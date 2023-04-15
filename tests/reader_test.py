@@ -1,11 +1,18 @@
 import unittest
-from skynamo_data.code.Reader import Reader
+from skynamo import Reader
 
 class TestReader(unittest.TestCase):
 	def test_GetAllCustomers(self):
 		reader=Reader()
 		customers=reader.getCustomers()
 		self.assertNotEqual(len(customers),0)
+		## find custom field test
+		customField=customers[0].getCustomFieldWithName('Not exist I am sure of it')
+		self.assertEqual(customField,None)
+		customers[0].c999_Made_up_custom_field_='test'#type:ignore
+		customField=customers[0].getCustomFieldWithName('Made up custom field ')
+		self.assertEqual(customField,'test')
+
 	def test_GetAllProducts(self):
 		reader=Reader()
 		products=reader.getProducts()
@@ -47,6 +54,12 @@ class TestReader(unittest.TestCase):
 		##update according to instance being tested:
 		customFormResults=reader.getAll_custom_field_types_f39()
 		self.assertNotEqual(len(customFormResults),0)
+		## find custom field test
+		customField=customFormResults[0].getCustomFieldWithName('Not exist I am sure of it')
+		self.assertEqual(customField,None)
+		customFormResults[0].c999_Made_up_custom_field_='test'#type:ignore
+		customField=customFormResults[0].getCustomFieldWithName('Made up custom field ')
+		self.assertEqual(customField,'test')
 	def test_getTaxRates(self):
 		reader=Reader()
 		taxRates=reader.getTaxRates()

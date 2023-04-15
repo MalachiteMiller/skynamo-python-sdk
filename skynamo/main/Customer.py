@@ -3,8 +3,11 @@ from datetime import datetime
 from skynamo.models.Address import Address
 from skynamo.shared.helpers import getDateTimeObjectFromSkynamoDateTimeStr
 from skynamo.models.Location import Location
+from skynamo.reader.readerHelpers import getCustomFieldWithName
 
 class Customer:
+	def getCustomFieldWithName(self,name:str):
+		return getCustomFieldWithName(self,name)
 	def __init__(self,json:dict):
 		self.id:int=json['id']
 		self.code:str=json['code']

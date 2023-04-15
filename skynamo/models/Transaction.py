@@ -2,8 +2,11 @@ from typing import Union,List
 from datetime import datetime
 from ..shared.helpers import getDateTimeObjectFromSkynamoDateTimeStr
 from .LineItem import LineItem
+from skynamo.reader.readerHelpers import getCustomFieldWithName
 
 class Transaction:
+	def getCustomFieldWithName(self,name:str):
+		return getCustomFieldWithName(self,name)
 	def __init__(self,json:dict):
 		self.id:int=json['id']
 		self.date:datetime=getDateTimeObjectFromSkynamoDateTimeStr(json['date'])

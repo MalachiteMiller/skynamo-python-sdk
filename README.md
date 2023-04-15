@@ -49,12 +49,12 @@ from skynamo import refreshCustomFormsAndFields
 
 refreshCustomFormsAndFields()
 ```
-This creates files in the skynamo_data/code folder with files containing python classes. Each class represents a data model that can be customized using skynamo's forms.
+This creates files in the skynamo_data/code folder with files containing python classes. Each class represents a data model that can be customized using skynamo's forms. You will need to run this function everytime you made changes to custom fields in your skynamo instance and want to work with those fields in your code.
 
 ## Pulling data from your skynamo instance
 To pull any data from your skynamo instance, you need to import the Reader class and call the get method for the data you want to pull. For example, to pull all customers from your skynamo instance, you would do the following:
 ```python
-from skynamo_data.code.Reader import Reader
+from skynamo.Reader import Reader
 
 reader=Reader()
 customers=reader.getCustomers()
@@ -71,7 +71,7 @@ To make it easier to work with data pulled from Skynamo, all data is saved as ob
 ## Writing data to your skynamo instance
 To make any puts, posts or patches you need to build up a list of writes and then apply them together as shown below:
 ```python
-from skynamo_data.code.Writer import Writer
+from skynamo.Writer import Writer
 
 writer=Writer()
 writer.addCustomerCreate('GEP001','Gepa Store')

@@ -3,8 +3,11 @@ from datetime import datetime
 from skynamo.shared.helpers import getDateTimeObjectFromSkynamoDateTimeStr
 from skynamo.models.Address import Address
 from skynamo.models.OrderUnit import OrderUnit
+from skynamo.reader.readerHelpers import getCustomFieldWithName
 
 class Product:
+	def getCustomFieldWithName(self,name:str):
+		return getCustomFieldWithName(self,name)
 	def __init__(self,json:dict={}):
 		self.id:str=json['id']
 		self.row_version:int=json['row_version']
