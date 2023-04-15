@@ -8,10 +8,11 @@ from .models.CustomFieldsToCreate import CustomFieldsToCreate
 from .refresher import refreshCustomFormsAndFields
 from .outputters.csvWriter import writeListOfObjectsToCsvWithObjectPropertiesAsColumnNames
 from .outputters.emailer import sendEmailUsingGmailCredentialsWithFilesAttached
-from .main.Writer import Writer
-from .main.Reader import Reader
+
 try:
-    from skynamo_data.code.Reader import Reader
-    from skynamo_data.code.Writer import Writer
+    from skynamo_data.code.Reader import Reader as InstanceReader#type: ignore
+    from skynamo_data.code.Writer import Writer as InstanceWriter#type: ignore
 except:
     pass
+from .main.Writer import Writer
+from .main.Reader import Reader

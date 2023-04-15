@@ -54,9 +54,10 @@ This creates files in the skynamo_data/code folder with files containing python 
 ## Pulling data from your skynamo instance
 To pull any data from your skynamo instance, you need to import the Reader class and call the get method for the data you want to pull. For example, to pull all customers from your skynamo instance, you would do the following:
 ```python
-from skynamo.Reader import Reader
+from skynamo import Reader #this reader only has access to generic skynamo properties (excluding custom fields and forms). To use this you must first run refreshCustomFormsAndFields()
+from skynamo import InstanceReader #this reader has access to all skynamo properties (including custom fields and forms)
 
-reader=Reader()
+reader=InstanceReader()#or reader=Reader() if you do not need custom fields and forms
 customers=reader.getCustomers()
 ```
 
@@ -71,9 +72,10 @@ To make it easier to work with data pulled from Skynamo, all data is saved as ob
 ## Writing data to your skynamo instance
 To make any puts, posts or patches you need to build up a list of writes and then apply them together as shown below:
 ```python
-from skynamo.Writer import Writer
+from skynamo import Writer # this writer only has access to generic skynamo properties (excluding custom fields and forms). To use this you must first run refreshCustomFormsAndFields()
+from skynamo import InstanceWriter # this writer has access to all skynamo properties (including custom fields and forms)
 
-writer=Writer()
+writer=Writer() #or writer=InstanceWriter() if you do not need custom fields and forms
 writer.addCustomerCreate('GEP001','Gepa Store')
 writer.addStockLevelUpdateUsingProductCodeAndUnitName('SKU 010','Cases',12)
 listOfErrors=writer.apply()

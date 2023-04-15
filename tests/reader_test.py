@@ -1,5 +1,6 @@
 import unittest
 from skynamo import Reader
+from skynamo import InstanceReader
 
 class TestReader(unittest.TestCase):
 	def test_GetAllCustomers(self):
@@ -18,7 +19,7 @@ class TestReader(unittest.TestCase):
 		products=reader.getProducts()
 		self.assertNotEqual(len(products),0)
 	def test_GetAllStockLevels(self):
-		reader=Reader()
+		reader=InstanceReader()
 		stockLevels=reader.getStockLevels()
 		self.assertNotEqual(len(stockLevels),0)
 	def test_GetAllUsers(self):
@@ -50,7 +51,7 @@ class TestReader(unittest.TestCase):
 		prices=reader.getPrices()
 		self.assertNotEqual(len(prices),0)
 	def test_getCustomFormResults(self):
-		reader=Reader()
+		reader=InstanceReader()
 		##update according to instance being tested:
 		customFormResults=reader.getAll_custom_field_types_f39()
 		self.assertNotEqual(len(customFormResults),0)
