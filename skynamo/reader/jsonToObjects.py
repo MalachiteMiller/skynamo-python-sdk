@@ -2,10 +2,16 @@ import json
 from ..models.Transaction import Transaction
 from ..models.Address import Address
 from ..shared.helpers import getDateTimeObjectFromSkynamoDateTimeStr
+from ..shared.api import makeRequest
 from typing import List
 
 def populateUserIdAndNameFromInteractionAndReturnFormIds(transaction:Transaction,interactionsJson:dict):
-	interaction=interactionsJson['items'][str(transaction.interaction_id)]
+	try:
+		interaction=interactionsJson['items'][str(transaction.interaction_id)]
+	except KeyError:
+		interaction = makeRequest('get', f'interactions/{transaction.interaction_id}')
+		if interaction.errors:
+			raise KeyError(transaction.interaction_id)
 	transaction.user_id=interaction['user_id']
 	transaction.user_name=interaction['user_name']
 	formIds=[]
