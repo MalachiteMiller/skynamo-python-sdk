@@ -10,8 +10,12 @@ def populateUserIdAndNameFromInteractionAndReturnFormIds(transaction:Transaction
 		interaction=interactionsJson['items'][str(transaction.interaction_id)]
 	except KeyError:
 		interaction = makeRequest('get', f'interactions/{transaction.interaction_id}')
-		if interaction.errors:
-			raise KeyError(transaction.interaction_id)
+		try:
+			error = interaction.errors
+			raise KeyError(error, transaction.interaction_id)
+		except AttributeError:
+			pass
+
 	transaction.user_id=interaction['user_id']
 	transaction.user_name=interaction['user_name']
 	formIds=[]
