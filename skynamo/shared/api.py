@@ -27,7 +27,8 @@ def get_headers():
 def makeRequest(method: Literal['get', 'post', 'patch', 'put'], data_type: str,
 				data_or_params: Union[list, Dict[str, Any]] = ''):
 	print(' '.join(filter(None, [method, data_type, str(data_or_params)])))
+	timeout = os.environ.get('REQUESTS_TIMEOUT')
 	response = requests.request(method, get_api_base() + data_type, headers=get_headers(), params=data_or_params,
-								timeout=300)
+								timeout=timeout)
 	response.raise_for_status()
 	return response.json()

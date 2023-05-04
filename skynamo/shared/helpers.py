@@ -11,6 +11,10 @@ def updateEnvironmentVariablesFromJsonConfig():
 		os.environ['SKYNAMO_API_KEY']=config['SKYNAMO_API_KEY']
 		os.environ['SKYNAMO_INSTANCE_NAME']=config['SKYNAMO_INSTANCE_NAME']
 		os.environ['SKYNAMO_REGION']=config['SKYNAMO_REGION']
+		if 'REQUESTS_TIMEOUT' in config:
+			os.environ['REQUESTS_TIMEOUT']=str(config['REQUESTS_TIMEOUT'])
+		else:
+			os.environ['REQUESTS_TIMEOUT']='300'
 		if 'SKYNAMO_CACHE_REFRESH_INTERVAL' in config:
 			os.environ['SKYNAMO_CACHE_REFRESH_INTERVAL']=str(config['SKYNAMO_CACHE_REFRESH_INTERVAL'])
 		if 'SKYNAMO_GMAIL_SENDER' in config:
