@@ -24,14 +24,14 @@ def makeRequest(method:Literal['get','post','patch','put'],dataType:str,dataOrPa
 	print(dataType)
 	print(dataOrParams)
 	if method=='get':
-		return requests.get(getApiBase()+dataType,headers=getHeaders(),params=dataOrParams).json()
+		return requests.get(getApiBase()+dataType,headers=getHeaders(),params=dataOrParams, timeout=300).json()
 	elif method=='post':
-		return requests.post(getApiBase()+dataType,headers=getHeaders(),json=dataOrParams).json()
+		return requests.post(getApiBase()+dataType,headers=getHeaders(),json=dataOrParams, timeout=300).json()
 	elif method=='patch':
-		return requests.patch(getApiBase()+dataType,headers=getHeaders(),json=dataOrParams).json()
+		return requests.patch(getApiBase()+dataType,headers=getHeaders(),json=dataOrParams, timeout=300).json()
 	elif method=='put':
-		return requests.put(getApiBase()+dataType,headers=getHeaders(),json=dataOrParams).json()
+		return requests.put(getApiBase()+dataType,headers=getHeaders(),json=dataOrParams, timeout=300).json()
 	elif method=='delete':
-		return requests.delete(getApiBase()+dataType,headers=getHeaders(),json=dataOrParams).json()
+		return requests.delete(getApiBase()+dataType,headers=getHeaders(),json=dataOrParams, timeout=300).json()
 	else:
 		raise Exception(f'Invalid method: {method}')
