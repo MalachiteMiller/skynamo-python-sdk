@@ -51,7 +51,7 @@ def __makeWriteRequest(writeOperations:Union[WriteOperation,List[WriteOperation]
 		body=writeOperations.itemOrId
 		httpMethod=writeOperations.httpMethod
 		dataType=writeOperations.dataType
-	results=makeRequest(httpMethod,dataType,str(body))#type:ignore
+	results=makeRequest(httpMethod,dataType,body=str(body))#type:ignore
 	if 'errors' in results:
 		for error in results['errors']:
 			details=str(error)

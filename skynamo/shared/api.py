@@ -24,10 +24,11 @@ def get_headers():
 	return {'x-api-client': instance_name, 'x-api-key': api_key, 'accept': 'application/json'}
 
 
-def makeRequest(method: Literal['get', 'post', 'patch', 'put'], data_type: str, data: str | dict = ''):
-	print(' '.join([method, data_type, str(data)]))
+def makeRequest(method: Literal['get', 'post', 'patch', 'put'], data_type: str, data: str = "", params: Dict = {}):
+	print(' '.join([method, data_type, data, str(params)]))
 	updateEnvironmentVariablesFromJsonConfig()
 	timeout = int(os.environ.get('REQUESTS_TIMEOUT'))
-	response = requests.request(method, get_api_base() + data_type, headers=get_headers(), data=data, timeout=timeout)
+	response = requests.request(method, get_api_base() + data_type, headers=get_headers(), data=data, params=params,
+								timeout=timeout)
 	response.raise_for_status()
 	return response.json()

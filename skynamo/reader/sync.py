@@ -10,7 +10,7 @@ def AddPageResultToExistingItemsAndReturnTotalItems(dataType:str,existingItems:D
 		params['filters']=filters
 	if flags!=[]:
 		params['flags']=','.join(flags)
-	jsonResponse=makeRequest('get',dataType,params)
+	jsonResponse=makeRequest('get',dataType,params=params)
 	if 'message' in jsonResponse:
 		if jsonResponse['message']=='Forbidden':
 			raise Exception('Invalid region, instance name or api key')
