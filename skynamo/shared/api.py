@@ -1,9 +1,14 @@
 import os
+import sys
 from typing import Literal, Any, Union, Dict
 
 import requests
 
 from .helpers import updateEnvironmentVariablesFromJsonConfig
+
+
+class SkynamoApiException(Exception):
+	pass
 
 
 def get_api_base():
@@ -30,5 +35,10 @@ def makeRequest(method: Literal['get', 'post', 'patch', 'put'], data_type: str, 
 	timeout = int(os.environ.get('REQUESTS_TIMEOUT'))
 	response = requests.request(method, get_api_base() + data_type, headers=get_headers(), data=data, params=params,
 								timeout=timeout)
-	response.raise_for_status()
+	try:
+		response.raise_for_status()
+	except requests.exceptions.HTTPError as err:
+		sys.tracebacklimit = 0
+		raise SkynamoApiException('makeRequest ' + str(err.response.status_code) + ': ' + err.response.text + '; '
+								  + err.response.url) from None
 	return response.json()
