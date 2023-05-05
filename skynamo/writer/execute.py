@@ -69,5 +69,6 @@ def __makeWriteRequest(writeOperations:Union[WriteOperation,List[WriteOperation]
 			if e.status_code >= 500:
 				if i == retries - 1:
 					raise e
+				print(f"Retrying {httpMethod} {dataType} {body} due to {e.status_code} error")
 				sleep(0.5)
 				continue
