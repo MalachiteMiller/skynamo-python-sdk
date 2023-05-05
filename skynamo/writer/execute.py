@@ -1,8 +1,9 @@
 from .WriteOperationCls import WriteOperation
 from .WriteErrorCls import WriteError
-from ..shared.api import makeRequest
+from ..shared.api import makeRequest, SkynamoApiException
 import math,threading
 from typing import List,Union
+from time import sleep
 
 def executeWrites(writeOperations:List[WriteOperation]):
 	writeBatchesGroupedByDataTypeAndHttpMethod=[]
@@ -51,12 +52,22 @@ def __makeWriteRequest(writeOperations:Union[WriteOperation,List[WriteOperation]
 		body=writeOperations.itemOrId
 		httpMethod=writeOperations.httpMethod
 		dataType=writeOperations.dataType
-	results=makeRequest(httpMethod,dataType,data=str(body))#type:ignore
-	if 'errors' in results:
-		for error in results['errors']:
-			details=str(error)
-			if 'detail' in error:
-				details=error['detail']
-			if not isinstance(details,list):
-				details=[details]
-			errors.append(WriteError(dataType,httpMethod,body,details))
+	retries = 50
+	for i in range(retries):
+		try:
+			results=makeRequest(httpMethod,dataType,data=str(body))#type:ignore
+			if 'errors' in results:
+				for error in results['errors']:
+					details=str(error)
+					if 'detail' in error:
+						details=error['detail']
+					if not isinstance(details,list):
+						details=[details]
+					errors.append(WriteError(dataType,httpMethod,body,details))
+			break
+		except SkynamoApiException as e:
+			if e.status_code >= 500:
+				if i == retries - 1:
+					raise e
+				sleep(0.5)
+				continue
