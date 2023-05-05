@@ -14,7 +14,7 @@ if os.path.isfile(requirement_path):
 if __name__ == "__main__":
     setup(
         name='skynamo',
-        version='1.0.6',
+        version='1.0.7',
         author='Daniel van Niekerk',
         author_email='daniel@skynamo.com',
         description='Skynamo Public API SDK',
