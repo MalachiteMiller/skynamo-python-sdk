@@ -5,11 +5,14 @@ from ..shared.helpers import getDateTimeObjectFromSkynamoDateTimeStr
 from ..shared.api import makeRequest
 from typing import List
 
-def populateUserIdAndNameFromInteractionAndReturnFormIds(transaction:Transaction,interactionsJson:dict):
+
+def populateUserIdAndNameFromInteractionAndReturnFormIds(transaction:Transaction,interactionsJson:dict, retries=0):
 	try:
 		interaction=interactionsJson['items'][str(transaction.interaction_id)]
 	except KeyError:
-		interaction = makeRequest('get', f'interactions/{transaction.interaction_id}')
+		retries += 1
+		if retries < 20:
+			interaction = makeRequest('get', f'interactions/{transaction.interaction_id}')
 
 	try:
 		transaction.user_id=interaction['user_id']
@@ -19,7 +22,7 @@ def populateUserIdAndNameFromInteractionAndReturnFormIds(transaction:Transaction
 	formIds=[]
 	if 'completed_form_ids' in interaction:
 		formIds=interaction['completed_form_ids']
-	return formIds
+	return formIds, retries
 
 def populateCustomPropsFromFormResults(transaction:Transaction,formIds:List[int],completedForms:dict):
 	for id in formIds:

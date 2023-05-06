@@ -22,8 +22,9 @@ def _getTransactions(transactionClass,forceRefresh=False, key: str = None):
 		completedForms=json.load(read_file)
 	transactions=getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation(f'{transactionClass.__name__.lower()}s'),transactionClass)
 	populatedTransactions=[]
+	retries = 0
 	for i,transaction in enumerate(transactions):
-		formIds=populateUserIdAndNameFromInteractionAndReturnFormIds(transaction,interactionsJson)
+		formIds, retries = populateUserIdAndNameFromInteractionAndReturnFormIds(transaction, interactionsJson, retries)
 		try:
 			populateCustomPropsFromFormResults(transaction,formIds,completedForms)
 			populatedTransactions.append(transaction)
