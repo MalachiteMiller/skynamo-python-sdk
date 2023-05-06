@@ -58,7 +58,7 @@ def makeRequest(method: Literal['get', 'post', 'patch', 'put'], data_type: str, 
 	Raises:
 		SkynamoApiException: Raised when the api returns an error.
 	"""
-	if verbose == 'f':
+	if verbose == 't':
 		print(' '.join([method, data_type, data, str(params)]))
 	elif verbose == 'l':
 		print(' '.join([method, data_type]))
