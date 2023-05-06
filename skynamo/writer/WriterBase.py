@@ -17,8 +17,8 @@ class WriterBase:
 	def __init__(self):
 		self.writeOperations:List[WriteOperation]=[]
 
-	def apply(self, key: str = None):
-		res= executeWrites(self.writeOperations, key)
+	def apply(self, verbose: str = 't', key: str = None):
+		res= executeWrites(self.writeOperations, verbose, key)
 		self.writeOperations=[]
 		return res
 	##unchanging update operations

@@ -6,7 +6,7 @@ from typing import List,Union
 from time import sleep
 
 
-def executeWrites(writeOperations:List[WriteOperation], key: str = None):
+def executeWrites(writeOperations:List[WriteOperation], verbose, key: str = None):
 	writeBatchesGroupedByDataTypeAndHttpMethod=[]
 	for write in writeOperations:
 		found=False
@@ -27,14 +27,14 @@ def executeWrites(writeOperations:List[WriteOperation], key: str = None):
 			continue
 		for i in range(math.ceil(len(writeBatch)/20)):
 			subBatchesWithMaxSizeOf20.append(writeBatch[i*20:i*20+20])
-	return __makeThreadedWrites(subBatchesWithMaxSizeOf20, key)
+	return __makeThreadedWrites(subBatchesWithMaxSizeOf20, verbose, key)
 
 
-def __makeThreadedWrites(subBatchesWithMaxSizeOf20:List[List[WriteOperation]], key: str = None):
+def __makeThreadedWrites(subBatchesWithMaxSizeOf20:List[List[WriteOperation]], verbose, key: str = None):
 	threads=[]
 	errors:List[WriteError]=[]
 	for subBatch in subBatchesWithMaxSizeOf20:
-		threads.append(threading.Thread(target=__makeWriteRequest,args=(subBatch,errors, key)))
+		threads.append(threading.Thread(target=__makeWriteRequest,args=(subBatch, errors, verbose, key)))
 	for thread in threads:
 		thread.start()
 	for thread in threads:
@@ -42,7 +42,8 @@ def __makeThreadedWrites(subBatchesWithMaxSizeOf20:List[List[WriteOperation]], k
 	return errors
 
 
-def __makeWriteRequest(writeOperations:Union[WriteOperation,List[WriteOperation]],errors:List[WriteError], key: str = None):
+def __makeWriteRequest(writeOperations:Union[WriteOperation,List[WriteOperation]],errors:List[WriteError],
+					   verbose, key: str = None):
 	body=[]
 	httpMethod=''
 	dataType=''
@@ -58,7 +59,7 @@ def __makeWriteRequest(writeOperations:Union[WriteOperation,List[WriteOperation]
 	retries = 50
 	for i in range(retries):
 		try:
-			results=makeRequest(httpMethod,dataType,data=str(body), key=key)
+			results=makeRequest(httpMethod,dataType,data=str(body), verbose=verbose, key=key)
 			if 'errors' in results:
 				for error in results['errors']:
 					details=str(error)

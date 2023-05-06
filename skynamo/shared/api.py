@@ -8,10 +8,18 @@ from .helpers import updateEnvironmentVariablesFromJsonConfig
 
 
 class SkynamoApiException(Exception):
+	"""Exception raised when the api returns an error
+
+	Args:
+		message: the error message
+		status_code: the http status code of the error
+
+	Attributes:
+		status_code: the http status code of the error
+	"""
 	def __init__(self, message: str, status_code: int):
 		super().__init__(message)
 		self.status_code = status_code
-	pass
 
 
 def get_api_base():
@@ -33,8 +41,29 @@ def get_headers():
 
 
 def makeRequest(method: Literal['get', 'post', 'patch', 'put'], data_type: str, data: str = "", params: Dict = None,
-				key: str = None):
-	print(' '.join([method, data_type, data, str(params)]))
+				verbose: Literal['t', 'l', 'f'] = 't', key: str = None) -> Dict:
+	"""Makes a request to the Skynamo api.
+
+	Args:
+		method: get, post, patch, put.
+		data_type: the api endpoint to call.
+		data: a json string to pass to the api.
+		params: a dict of parameters to pass to the api.
+		verbose: Only used for writes. t=true, l=limited, f=false. Default is true.
+		key: the api key to use, specified by its key in the json config file.
+
+	Returns:
+		The json response from the api.
+
+	Raises:
+		SkynamoApiException: Raised when the api returns an error.
+	"""
+	if verbose == 'f':
+		print(' '.join([method, data_type, data, str(params)]))
+	elif verbose == 'l':
+		print(' '.join([method, data_type]))
+	else:
+		pass
 	updateEnvironmentVariablesFromJsonConfig(key)
 	timeout = int(os.environ.get('REQUESTS_TIMEOUT'))
 	response = requests.request(method, get_api_base() + data_type, headers=get_headers(), data=data, params=params,
