@@ -14,11 +14,7 @@ if os.path.isfile(requirement_path):
 if __name__ == "__main__":
     setup(
         name='skynamo',
-        version='1.0.9',
-        author='Daniel van Niekerk',
-        author_email='daniel@skynamo.com',
-        description='Skynamo Public API SDK',
-        url='https://github.com/skynamo/skynamo-python-sdk',
+        version='1.0.10',
         packages=find_packages(),
         install_requires=install_requires
     )

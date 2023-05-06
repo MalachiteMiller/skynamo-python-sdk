@@ -13,42 +13,42 @@ from typing import List
 class ReaderBase:
 	def __init__(self):
 		pass
-	def getInvoices(self,forceRefresh=False):
-		refreshJsonFilesLocallyIfOutdated(['invoices'],forceRefresh)
+	def getInvoices(self,forceRefresh=False, key: str = None):
+		refreshJsonFilesLocallyIfOutdated(['invoices'], forceRefresh, key)
 		invoices:List[Invoice]=getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('invoices'),Invoice)
 		return invoices
 
-	def getStockLevels(self,forceRefresh=False):
-		refreshJsonFilesLocallyIfOutdated(['stocklevels'],forceRefresh)
+	def getStockLevels(self,forceRefresh=False, key: str = None):
+		refreshJsonFilesLocallyIfOutdated(['stocklevels'], forceRefresh, key)
 		stockLevels:List[StockLevel]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('stocklevels'),StockLevel)
 		return stockLevels
 
-	def getUsers(self,forceRefresh=False):
-		refreshJsonFilesLocallyIfOutdated(['users'],forceRefresh)
+	def getUsers(self,forceRefresh=False, key: str = None):
+		refreshJsonFilesLocallyIfOutdated(['users'], forceRefresh, key)
 		users:List[User]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('users'),User)
 		return users
 
-	def getWarehouses(self,forceRefresh=False):
-		refreshJsonFilesLocallyIfOutdated(['warehouses'],forceRefresh)
+	def getWarehouses(self,forceRefresh=False, key: str = None):
+		refreshJsonFilesLocallyIfOutdated(['warehouses'], forceRefresh, key)
 		warehouses:List[Warehouse]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('warehouses'),Warehouse)
 		return warehouses
 
-	def getPrices(self,forceRefresh=False):
-		refreshJsonFilesLocallyIfOutdated(['prices'],forceRefresh)
+	def getPrices(self,forceRefresh=False, key: str = None):
+		refreshJsonFilesLocallyIfOutdated(['prices'], forceRefresh, key)
 		prices:List[Price]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('prices'),Price)
 		return prices
 	
-	def getTaxRates(self,forceRefresh=False):
-		refreshJsonFilesLocallyIfOutdated(['taxrates'],forceRefresh)
+	def getTaxRates(self,forceRefresh=False, key: str = None):
+		refreshJsonFilesLocallyIfOutdated(['taxrates'], forceRefresh, key)
 		taxRates:List[TaxRate]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('taxrates'),TaxRate)
 		return taxRates
 	
-	def getPriceLists(self,forceRefresh=False):
-		refreshJsonFilesLocallyIfOutdated(['pricelists'],forceRefresh)
+	def getPriceLists(self,forceRefresh=False, key: str = None):
+		refreshJsonFilesLocallyIfOutdated(['pricelists'], forceRefresh, key)
 		priceLists:List[PriceList]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('pricelists'),PriceList)
 		return priceLists
 	
-	def getVisitFrequencies(self,forceRefresh=False):
-		refreshJsonFilesLocallyIfOutdated(['visitfrequencies'],forceRefresh)
+	def getVisitFrequencies(self,forceRefresh=False, key: str = None):
+		refreshJsonFilesLocallyIfOutdated(['visitfrequencies'], forceRefresh, key)
 		visitFrequencies:List[VisitFrequency]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('visitfrequencies'),VisitFrequency)
 		return visitFrequencies

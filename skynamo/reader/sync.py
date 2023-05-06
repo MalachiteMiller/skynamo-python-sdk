@@ -3,14 +3,16 @@ from typing import Union,Literal,List,Dict
 from ..shared.api import makeRequest
 import json,math,threading
 
-def AddPageResultToExistingItemsAndReturnTotalItems(dataType:str,existingItems:Dict,pageNr:int,pageSize:int,filters:str,flags:List[str]=[]):
+
+def AddPageResultToExistingItemsAndReturnTotalItems(dataType: str, existingItems: Dict, pageNr: int, pageSize: int,
+													filters: str, flags: List[str] = [], key: str = None):
 	print(f'Pagenr: {pageNr}')
 	params:Dict[str,Union[str,int]]={'page_number':pageNr,'page_size':pageSize}
 	if filters!='':
 		params['filters']=filters
 	if flags!=[]:
 		params['flags']=','.join(flags)
-	jsonResponse=makeRequest('get',dataType,params=params)
+	jsonResponse = makeRequest('get',dataType,params=params, key=key)
 	if 'message' in jsonResponse:
 		if jsonResponse['message']=='Forbidden':
 			raise Exception('Invalid region, instance name or api key')
@@ -44,7 +46,9 @@ def addLatestRowVersionToExistingData(existingData:dict,existingItems:dict):
 					latestRowVersion=rowVersion
 	existingData['lastRowVersion']=latestRowVersion
 
-def SyncDataTypeFromSkynamoToLocalJsonFiles(dataType,fullSync=False,syncFromLastRowVersion=False,flags:List[str]=[]):
+
+def SyncDataTypeFromSkynamoToLocalJsonFiles(dataType, fullSync = False, syncFromLastRowVersion=False,
+											flags: List[str]=[], key: str = None):
 	exceptionThatOccured=None
 	print(f'Starting sync for {dataType}')
 	pageSize=200
@@ -75,7 +79,8 @@ def SyncDataTypeFromSkynamoToLocalJsonFiles(dataType,fullSync=False,syncFromLast
 					nrThreads=20
 				threads=[]
 				for t in range(nrThreads):
-					t=threading.Thread(target=AddPageResultToExistingItemsAndReturnTotalItems,args=(dataType,existingItems,pageNr+t,pageSize,filters,flags))
+					t = threading.Thread(target=AddPageResultToExistingItemsAndReturnTotalItems,
+									   args=(dataType, existingItems, pageNr+t, pageSize, filters, flags, key))
 					t.start()
 					threads.append(t)
 				for thread in threads:
@@ -92,7 +97,8 @@ def SyncDataTypeFromSkynamoToLocalJsonFiles(dataType,fullSync=False,syncFromLast
 	if exceptionThatOccured!=None:
 		raise exceptionThatOccured
 
-def SyncDataTypesFromSkynamo(dataTypes:List[Literal['visitfrequencies','pricelists','taxrates','prices','warehouses','completedforms','quotes','orders','creditrequests','users','stocklevels','customers','products','invoices','formdefinitions','interactions']]=['completedforms','quotes','orders','creditrequests','users','stocklevels','customers','products','invoices','interactions']):
+
+def SyncDataTypesFromSkynamo(dataTypes:List[Literal['visitfrequencies','pricelists','taxrates','prices','warehouses','completedforms','quotes','orders','creditrequests','users','stocklevels','customers','products','invoices','formdefinitions','interactions']]=['completedforms','quotes','orders','creditrequests','users','stocklevels','customers','products','invoices','interactions'], key: str = None):
 	fullSyncDataTypes=['users','stocklevels','formdefinitions','taxrates','warehouses','pricelists']
 	versionedDataTypes=['customers','products','invoices','visitfrequencies']
 	dataTypeFlags={'formdefinitions':['show_enums'],'orders':['show_nulls'],'creditrequests':['show_nulls'],'quotes':['show_nulls']}
@@ -106,9 +112,10 @@ def SyncDataTypesFromSkynamo(dataTypes:List[Literal['visitfrequencies','pricelis
 			syncFromLastRowVersion=True
 		if dataType in dataTypeFlags:
 			flags=dataTypeFlags[dataType]
-		SyncDataTypeFromSkynamoToLocalJsonFiles(dataType,fullSync,syncFromLastRowVersion,flags)
+		SyncDataTypeFromSkynamoToLocalJsonFiles(dataType, fullSync, syncFromLastRowVersion, flags, key)
 
-def refreshJsonFilesLocallyIfOutdated(dataTypes:List[Literal['visitfrequencies','pricelists','taxrates','prices','warehouses','completedforms','quotes','orders','creditrequests','users','stocklevels','customers','products','invoices','formdefinitions','interactions']],forceRefresh:bool=False):
+
+def refreshJsonFilesLocallyIfOutdated(dataTypes:List[Literal['visitfrequencies','pricelists','taxrates','prices','warehouses','completedforms','quotes','orders','creditrequests','users','stocklevels','customers','products','invoices','formdefinitions','interactions']],forceRefresh:bool=False, key: str = None):
 	import os
 	import time
 	nrSecondsToWaitBeforeRefreshing=300
@@ -122,9 +129,9 @@ def refreshJsonFilesLocallyIfOutdated(dataTypes:List[Literal['visitfrequencies',
 		if os.path.exists(getSynchedDataTypeFileLocation(dataType)):
 			fileLastModifiedTime = os.path.getmtime(getSynchedDataTypeFileLocation(dataType))
 			if forceRefresh or time.time()-fileLastModifiedTime>nrSecondsToWaitBeforeRefreshing:
-				SyncDataTypesFromSkynamo([dataType])
+				SyncDataTypesFromSkynamo([dataType], key)
 		else:
-			SyncDataTypesFromSkynamo([dataType])
+			SyncDataTypesFromSkynamo([dataType], key)
 
 def getSynchedDataTypeFileLocation(dataType:str):
 	return f'skynamo_data/cache/{dataType}.json'

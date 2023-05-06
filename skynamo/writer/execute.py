@@ -5,7 +5,8 @@ import math,threading
 from typing import List,Union
 from time import sleep
 
-def executeWrites(writeOperations:List[WriteOperation]):
+
+def executeWrites(writeOperations:List[WriteOperation], key: str = None):
 	writeBatchesGroupedByDataTypeAndHttpMethod=[]
 	for write in writeOperations:
 		found=False
@@ -26,20 +27,22 @@ def executeWrites(writeOperations:List[WriteOperation]):
 			continue
 		for i in range(math.ceil(len(writeBatch)/20)):
 			subBatchesWithMaxSizeOf20.append(writeBatch[i*20:i*20+20])
-	return __makeThreadedWrites(subBatchesWithMaxSizeOf20)
+	return __makeThreadedWrites(subBatchesWithMaxSizeOf20, key)
 
-def __makeThreadedWrites(subBatchesWithMaxSizeOf20:List[List[WriteOperation]]):
+
+def __makeThreadedWrites(subBatchesWithMaxSizeOf20:List[List[WriteOperation]], key: str = None):
 	threads=[]
 	errors:List[WriteError]=[]
 	for subBatch in subBatchesWithMaxSizeOf20:
-		threads.append(threading.Thread(target=__makeWriteRequest,args=(subBatch,errors)))
+		threads.append(threading.Thread(target=__makeWriteRequest,args=(subBatch,errors, key)))
 	for thread in threads:
 		thread.start()
 	for thread in threads:
 		thread.join()
 	return errors
 
-def __makeWriteRequest(writeOperations:Union[WriteOperation,List[WriteOperation]],errors:List[WriteError]):
+
+def __makeWriteRequest(writeOperations:Union[WriteOperation,List[WriteOperation]],errors:List[WriteError], key: str = None):
 	body=[]
 	httpMethod=''
 	dataType=''
@@ -55,7 +58,7 @@ def __makeWriteRequest(writeOperations:Union[WriteOperation,List[WriteOperation]
 	retries = 50
 	for i in range(retries):
 		try:
-			results=makeRequest(httpMethod,dataType,data=str(body))#type:ignore
+			results=makeRequest(httpMethod,dataType,data=str(body), key=key)
 			if 'errors' in results:
 				for error in results['errors']:
 					details=str(error)

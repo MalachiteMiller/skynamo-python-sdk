@@ -16,8 +16,9 @@ from ..models.VisitFrequency import VisitFrequency
 class WriterBase:
 	def __init__(self):
 		self.writeOperations:List[WriteOperation]=[]
-	def apply(self):
-		res= executeWrites(self.writeOperations)
+
+	def apply(self, key: str = None):
+		res= executeWrites(self.writeOperations, key)
 		self.writeOperations=[]
 		return res
 	##unchanging update operations

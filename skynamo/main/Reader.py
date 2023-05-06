@@ -9,10 +9,11 @@ from skynamo.reader.sync import refreshJsonFilesLocallyIfOutdated,getSynchedData
 import json
 from typing import List
 from skynamo.reader.ReaderBase import ReaderBase
-##|customImports|##
 
-def _getTransactions(transactionClass,forceRefresh=False):
-	refreshJsonFilesLocallyIfOutdated([f'{transactionClass.__name__.lower()}s','completedforms','interactions'])#type:ignore
+
+def _getTransactions(transactionClass,forceRefresh=False, key: str = None):
+	refreshJsonFilesLocallyIfOutdated([f'{transactionClass.__name__.lower()}s','completedforms','interactions'],
+									  forceRefresh, key)
 	interactionsJson={}
 	with open(getSynchedDataTypeFileLocation('interactions'), "r") as read_file:
 		interactionsJson=json.load(read_file)
@@ -33,25 +34,25 @@ def _getTransactions(transactionClass,forceRefresh=False):
 class Reader(ReaderBase):
 	def __init__(self):
 		pass
-	def getOrders(self,forceRefresh=False):
-		orders:List[Order]=_getTransactions(Order,forceRefresh)
+	def getOrders(self,forceRefresh=False, key: str = None):
+		orders:List[Order] = _getTransactions(Order, forceRefresh, key)
 		return orders
 
-	def getCreditRequests(self,forceRefresh=False):
-		creditRequests:List[CreditRequest]=_getTransactions(CreditRequest,forceRefresh)
+	def getCreditRequests(self,forceRefresh=False, key: str = None):
+		creditRequests:List[CreditRequest] = _getTransactions(CreditRequest, forceRefresh, key)
 		return creditRequests
 
-	def getQuotes(self,forceRefresh=False):
-		quotes:List[Quote]=_getTransactions(Quote,forceRefresh)
+	def getQuotes(self,forceRefresh=False, key: str = None):
+		quotes:List[Quote] = _getTransactions(Quote, forceRefresh, key)
 		return quotes
 
-	def getProducts(self,forceRefresh=False):
-		refreshJsonFilesLocallyIfOutdated(['products'],forceRefresh)
+	def getProducts(self,forceRefresh=False, key: str = None):
+		refreshJsonFilesLocallyIfOutdated(['products'], forceRefresh, key)
 		products:List[Product]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('products'),Product)
 		return products
 
-	def getCustomers(self,forceRefresh=False):
-		refreshJsonFilesLocallyIfOutdated(['customers'],forceRefresh)
+	def getCustomers(self,forceRefresh=False, key: str = None):
+		refreshJsonFilesLocallyIfOutdated(['customers'], forceRefresh, key)
 		customers:List[Customer]= getListOfObjectsFromJsonFile(getSynchedDataTypeFileLocation('customers'),Customer)
 		return customers
 

@@ -4,11 +4,14 @@ from datetime import datetime
 def ensureFolderExists(folderPath):
 	if not os.path.exists(folderPath):
 		os.makedirs(folderPath)
-	
-def updateEnvironmentVariablesFromJsonConfig():
+
+
+def updateEnvironmentVariablesFromJsonConfig(selected_key: str = None):
+	if selected_key is None:
+		selected_key = 'SKYNAMO_API_KEY'
 	with open('skynamo-config.json', "r") as read_file:
 		config=json.load(read_file)
-		os.environ['SKYNAMO_API_KEY']=config['SKYNAMO_API_KEY']
+		os.environ['SKYNAMO_API_KEY']=config[selected_key]
 		os.environ['SKYNAMO_INSTANCE_NAME']=config['SKYNAMO_INSTANCE_NAME']
 		os.environ['SKYNAMO_REGION']=config['SKYNAMO_REGION']
 		if 'REQUESTS_TIMEOUT' in config:
