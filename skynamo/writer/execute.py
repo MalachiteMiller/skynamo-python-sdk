@@ -1,78 +1,35 @@
 from .WriteOperationCls import WriteOperation
-from .WriteErrorCls import WriteError
 from ..shared.api import makeRequest, SkynamoApiException
-import math,threading
-from typing import List,Union
+from typing import List, Union
 from time import sleep
 
 
-def executeWrites(writeOperations:List[WriteOperation], verbose, key: str = None):
-	writeBatchesGroupedByDataTypeAndHttpMethod=[]
-	for write in writeOperations:
-		found=False
-		if not(write.canBeCombinedWithOtherWritesInAList):
-			writeBatchesGroupedByDataTypeAndHttpMethod.append(write)
-			continue
-		for writeBatch in writeBatchesGroupedByDataTypeAndHttpMethod:
-			if writeBatch[0].dataType==write.dataType and writeBatch[0].httpMethod==write.httpMethod:
-				writeBatch.append(write)
-				found=True
-				break
-		if not found:
-			writeBatchesGroupedByDataTypeAndHttpMethod.append([write])
-	subBatchesWithMaxSizeOf20:List[List[WriteOperation]]=[]
-	for writeBatch in writeBatchesGroupedByDataTypeAndHttpMethod:
-		if not(isinstance(writeBatch,list)):
-			subBatchesWithMaxSizeOf20.append(writeBatch)
-			continue
-		for i in range(math.ceil(len(writeBatch)/20)):
-			subBatchesWithMaxSizeOf20.append(writeBatch[i*20:i*20+20])
-	return __makeThreadedWrites(subBatchesWithMaxSizeOf20, verbose, key)
+def executeWrites(write_operations: List[WriteOperation], verbose, key: str = None):
+    for write in write_operations:
+        __make_write_request(write, verbose, key)
 
 
-def __makeThreadedWrites(subBatchesWithMaxSizeOf20:List[List[WriteOperation]], verbose, key: str = None):
-	threads=[]
-	errors:List[WriteError]=[]
-	for subBatch in subBatchesWithMaxSizeOf20:
-		threads.append(threading.Thread(target=__makeWriteRequest,args=(subBatch, errors, verbose, key)))
-	for thread in threads:
-		thread.start()
-	for thread in threads:
-		thread.join()
-	return errors
+def __make_write_request(write_operation: Union[WriteOperation, List[WriteOperation]], verbose, key: str = None):
+    body = []
+    if isinstance(write_operation, list):
+        http_method = write_operation[0].httpMethod
+        data_type = write_operation[0].dataType
+        for write in write_operation:
+            body.append(write.itemOrId)
+    else:
+        body = write_operation.itemOrId
+        http_method = write_operation.httpMethod
+        data_type = write_operation.dataType
 
-
-def __makeWriteRequest(writeOperations:Union[WriteOperation,List[WriteOperation]],errors:List[WriteError],
-					   verbose, key: str = None):
-	body=[]
-	httpMethod=''
-	dataType=''
-	if isinstance(writeOperations,list):
-		httpMethod=writeOperations[0].httpMethod
-		dataType=writeOperations[0].dataType
-		for write in writeOperations:
-			body.append(write.itemOrId)
-	else:
-		body=writeOperations.itemOrId
-		httpMethod=writeOperations.httpMethod
-		dataType=writeOperations.dataType
-	retries = 50
-	for i in range(retries):
-		try:
-			results=makeRequest(httpMethod,dataType,data=str(body), verbose=verbose, key=key)
-			if 'errors' in results:
-				for error in results['errors']:
-					details=str(error)
-					if 'detail' in error:
-						details=error['detail']
-					if not isinstance(details,list):
-						details=[details]
-					errors.append(WriteError(dataType,httpMethod,body,details))
-			break
-		except SkynamoApiException as e:
-			if e.status_code >= 500:
-				if i == retries - 1:
-					raise e
-				print(f"Retrying {httpMethod} {dataType} {body} due to {e.status_code} error")
-				sleep(0.5)
-				continue
+    retries = [.5, 1, 2, 4, 8, 16, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 64, 128, 128]
+    for sleep_time in retries:
+        try:
+            makeRequest(http_method, data_type, data=str(body), verbose=verbose, key=key)
+            break
+        except SkynamoApiException as e:
+            if e.status_code >= 500 or e.status_code == 429:
+                print(f"Retrying {http_method} {data_type} {body} due to {e.status_code} error")
+                sleep(sleep_time)
+                continue
+    else:
+        raise SkynamoApiException('Too many retries on a write')

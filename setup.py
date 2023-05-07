@@ -14,7 +14,7 @@ if os.path.isfile(requirement_path):
 if __name__ == "__main__":
     setup(
         name='skynamo',
-        version='1.0.15',
+        version='1.0.16',
         packages=find_packages(),
         install_requires=install_requires
     )
