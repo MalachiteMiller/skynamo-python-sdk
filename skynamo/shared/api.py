@@ -71,7 +71,6 @@ def makeRequest(method: Literal['get', 'post', 'patch', 'put'], data_type: str, 
 	try:
 		response.raise_for_status()
 	except requests.exceptions.HTTPError as err:
-		sys.tracebacklimit = 0
 		raise SkynamoApiException('makeRequest ' + str(err.response.status_code) + ': ' + err.response.text + '; '
 								  + err.response.url, err.response.status_code) from None
 	return response.json()
