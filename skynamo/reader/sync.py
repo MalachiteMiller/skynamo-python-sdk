@@ -1,7 +1,8 @@
 from ..shared.helpers import ensureFolderExists
 from typing import Union,Literal,List,Dict
-from ..shared.api import makeRequest
-import json,math,threading
+from ..shared.api import makeRequest, SkynamoApiException
+import json,math
+from time import sleep
 
 
 def AddPageResultToExistingItemsAndReturnTotalItems(dataType: str, existingItems: Dict, pageNr: int, pageSize: int,
@@ -12,10 +13,20 @@ def AddPageResultToExistingItemsAndReturnTotalItems(dataType: str, existingItems
 		params['filters']=filters
 	if flags!=[]:
 		params['flags']=','.join(flags)
-	jsonResponse = makeRequest('get',dataType,params=params, key=key)
-	if 'message' in jsonResponse:
-		if jsonResponse['message']=='Forbidden':
-			raise Exception('Invalid region, instance name or api key')
+
+	retries = [.5, 1, 2, 4, 8, 16, 32, 64]
+	for sleep_time in retries:
+		try:
+			jsonResponse = makeRequest('get',dataType,params=params, key=key)
+			break
+		except SkynamoApiException as e:
+			if e.status_code >= 500 or e.status_code == 429:
+				print(f"Retrying page {pageNr} due to {e.status_code} error")
+				sleep(sleep_time)
+				continue
+	else:
+		raise SkynamoApiException('Too many retries')
+
 	totalItems=0
 	if 'page' in jsonResponse:
 		totalItems=jsonResponse['page']['filtered_item_count']
@@ -69,23 +80,12 @@ def SyncDataTypeFromSkynamoToLocalJsonFiles(dataType, fullSync = False, syncFrom
 		pageNr=existingData['lastPageNr']
 	existingItems=existingData['items']
 	try:
-			totalItems=AddPageResultToExistingItemsAndReturnTotalItems(dataType,existingItems,pageNr,pageSize,filters,flags)
-			pageNr=pageNr+1
-			predictedNumberOfPages=math.ceil(totalItems/pageSize)
-			while pageNr<=predictedNumberOfPages:
-				pagesLeft=predictedNumberOfPages-pageNr + 1
-				nrThreads=pagesLeft
-				if nrThreads>20:
-					nrThreads=20
-				threads=[]
-				for t in range(nrThreads):
-					t = threading.Thread(target=AddPageResultToExistingItemsAndReturnTotalItems,
-									   args=(dataType, existingItems, pageNr+t, pageSize, filters, flags, key))
-					t.start()
-					threads.append(t)
-				for thread in threads:
-					thread.join()
-				pageNr=pageNr+nrThreads
+		totalItems=AddPageResultToExistingItemsAndReturnTotalItems(dataType,existingItems,pageNr,pageSize,filters,flags,key)
+		pageNr=pageNr+1
+		predictedNumberOfPages=math.ceil(totalItems/pageSize)
+		while pageNr<=predictedNumberOfPages:
+			AddPageResultToExistingItemsAndReturnTotalItems(dataType,existingItems,pageNr,pageSize,filters,flags, key)
+			pageNr += 1
 	except Exception as e:
 		exceptionThatOccured=e
 
