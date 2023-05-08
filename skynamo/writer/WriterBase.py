@@ -17,8 +17,8 @@ class WriterBase:
 	def __init__(self):
 		self.writeOperations:List[WriteOperation]=[]
 
-	def apply(self, verbose: str = 't', key: str = None):
-		errors = executeWrites(self.writeOperations, verbose, key)
+	def apply(self, verbose: str = 't', key: str = None, retry: bool = True, timeout: int = None):
+		errors = executeWrites(self.writeOperations, verbose, key, retry, timeout)
 		self.writeOperations=[]
 		return errors
 	##unchanging update operations

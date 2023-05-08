@@ -44,7 +44,7 @@ def get_headers():
 
 
 def makeRequest(method: Literal['get', 'post', 'patch', 'put'], data_type: str, data: str = "", params: Dict = None,
-				verbose: Literal['t', 'l', 'f'] = 't', key: str = None) -> Dict:
+				verbose: Literal['t', 'l', 'f'] = 't', key: str = None, timeout: int = None) -> Dict:
 	"""Makes a request to the Skynamo api.
 
 	Args:
@@ -54,6 +54,7 @@ def makeRequest(method: Literal['get', 'post', 'patch', 'put'], data_type: str, 
 		params: a dict of parameters to pass to the api.
 		verbose: Only used for writes. t=true, l=limited, f=false. Default is true.
 		key: the api key to use, specified by its key in the json config file.
+		timeout: the timeout in seconds to use for the request.
 
 	Returns:
 		The json response from the api.
@@ -68,7 +69,8 @@ def makeRequest(method: Literal['get', 'post', 'patch', 'put'], data_type: str, 
 	else:
 		pass
 	updateEnvironmentVariablesFromJsonConfig(key)
-	timeout = int(os.environ.get('REQUESTS_TIMEOUT'))
+	if timeout is None:
+		timeout = int(os.environ.get('REQUESTS_TIMEOUT'))
 	response = requests.request(method, get_api_base() + data_type, headers=get_headers(), data=data, params=params,
 								timeout=timeout)
 	try:
