@@ -9,7 +9,11 @@ from skynamo.reader.sync import refreshJsonFilesLocallyIfOutdated,getSynchedData
 import json
 from typing import List
 from skynamo.reader.ReaderBase import ReaderBase
+from skynamo.shared.helpers import setup_logger
 ##|customImports|##
+
+
+logger = setup_logger()
 
 
 def _getTransactions(transactionClass,forceRefresh=False, key: str = None):
@@ -30,7 +34,7 @@ def _getTransactions(transactionClass,forceRefresh=False, key: str = None):
 			populateCustomPropsFromFormResults(transaction,formIds,completedForms)
 			populatedTransactions.append(transaction)
 		except Exception as e:
-			print(f'Warning: Error populating custom props for {transactionClass.__name__} {i}: {e}. Leaving out of transactions list since it might be because since the last sync new orders have come through but not yet their associated form results.')
+			logger.warning(f'Error populating custom props for {transactionClass.__name__} {i}: {e}. Leaving out of transactions list since it might be because since the last sync new orders have come through but not yet their associated form results.')
 	return populatedTransactions
 
 class Reader(ReaderBase):

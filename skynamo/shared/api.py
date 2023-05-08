@@ -4,7 +4,10 @@ from typing import Literal, Any, Union, Dict
 
 import requests
 
-from .helpers import updateEnvironmentVariablesFromJsonConfig
+from .helpers import updateEnvironmentVariablesFromJsonConfig, setup_logger
+
+
+logger = setup_logger()
 
 
 class SkynamoApiException(Exception):
@@ -59,9 +62,9 @@ def makeRequest(method: Literal['get', 'post', 'patch', 'put'], data_type: str, 
 		SkynamoApiException: Raised when the api returns an error.
 	"""
 	if verbose == 't':
-		print(' '.join([method, data_type, data, str(params)]))
+		logger.info(' '.join([method, data_type, data, str(params)]))
 	elif verbose == 'l':
-		print(' '.join([method, data_type]))
+		logger.info(' '.join([method, data_type]))
 	else:
 		pass
 	updateEnvironmentVariablesFromJsonConfig(key)
