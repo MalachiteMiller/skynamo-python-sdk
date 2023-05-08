@@ -3,6 +3,7 @@ from ..shared.api import makeRequest, SkynamoApiException
 from ..shared.helpers import setup_logger
 from typing import List, Union
 from time import sleep
+import json
 
 
 logger = setup_logger()
@@ -19,7 +20,7 @@ def executeWrites(write_operations: List[WriteOperation], verbose, key: str = No
             for write in write:
                 body.append(write.itemOrId)
         else:
-            body = write.itemOrId
+            body.append(write.itemOrId)
             http_method = write.httpMethod
             data_type = write.dataType
 
@@ -28,7 +29,7 @@ def executeWrites(write_operations: List[WriteOperation], verbose, key: str = No
         if retry:
             for sleep_time in retries:
                 try:
-                    makeRequest(http_method, data_type, data=str(body), verbose=verbose, key=key, timeout=timeout)
+                    makeRequest(http_method, data_type, data=json.dumps(body), verbose=verbose, key=key, timeout=timeout)
                     break
                 except SkynamoApiException as e:
                     if e.status_code != 429:
