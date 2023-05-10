@@ -61,5 +61,5 @@ def executeWrites(write_operations: List[WriteOperation], verbose, key: str = No
                         logger.critical(f'Error on write: {e.status_code}. {http_method} {data_type} {body}')
                         raise e
         else:
-            makeRequest(http_method, data_type, data=str(body), verbose=verbose, key=key, timeout=timeout)
+            makeRequest(http_method, data_type, data=json.dumps(body), verbose=verbose, key=key, timeout=timeout)
     return errors
