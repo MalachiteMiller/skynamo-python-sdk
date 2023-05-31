@@ -17,6 +17,7 @@ def populateUserIdAndNameFromInteractionAndReturnFormIds(transaction:Transaction
 	try:
 		transaction.user_id=interaction['user_id']
 		transaction.user_name=interaction['user_name']
+		transaction.date=interaction['date']
 	except KeyError:
 		raise KeyError(transaction.interaction_id, interaction)
 	formIds=[]
