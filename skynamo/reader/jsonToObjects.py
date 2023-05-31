@@ -4,6 +4,7 @@ from ..models.Address import Address
 from ..shared.helpers import getDateTimeObjectFromSkynamoDateTimeStr
 from ..shared.api import makeRequest
 from typing import List
+from datetime import datetime
 
 
 def populateUserIdAndNameFromInteractionAndReturnFormIds(transaction:Transaction,interactionsJson:dict, retries=0):
@@ -17,7 +18,10 @@ def populateUserIdAndNameFromInteractionAndReturnFormIds(transaction:Transaction
 	try:
 		transaction.user_id=interaction['user_id']
 		transaction.user_name=interaction['user_name']
-		transaction.date=interaction['date']
+		try:
+			transaction.date=datetime.strptime(interaction['date'], '%Y-%m-%dT%H:%M:%S.%f%z')
+		except ValueError:
+			transaction.date=datetime.strptime(interaction['date'], '%Y-%m-%dT%H:%M:%S%z')
 	except KeyError:
 		raise KeyError(transaction.interaction_id, interaction)
 	formIds=[]
