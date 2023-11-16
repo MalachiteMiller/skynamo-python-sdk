@@ -26,11 +26,7 @@ class SkynamoApiException(Exception):
 
 
 def get_api_base():
-	region = os.environ.get('SKYNAMO_REGION')
-	if region is None:
-		updateEnvironmentVariablesFromJsonConfig()
-		region = os.environ.get('SKYNAMO_REGION')
-	return f'https://api.{region}.skynamo.me/v1/'
+	return 'https://api.skynamo.me/v1/'
 
 
 def get_headers():

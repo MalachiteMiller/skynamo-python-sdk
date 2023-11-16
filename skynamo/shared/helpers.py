@@ -37,7 +37,6 @@ def updateEnvironmentVariablesFromJsonConfig(selected_key: str = None):
         config = json.load(read_file)
         os.environ['SKYNAMO_API_KEY'] = config[selected_key]
         os.environ['SKYNAMO_INSTANCE_NAME'] = config['SKYNAMO_INSTANCE_NAME']
-        os.environ['SKYNAMO_REGION'] = config['SKYNAMO_REGION']
         if 'REQUESTS_TIMEOUT' in config:
             os.environ['REQUESTS_TIMEOUT'] = str(config['REQUESTS_TIMEOUT'])
         else:
